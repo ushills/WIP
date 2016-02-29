@@ -10,7 +10,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # declare WIP excel file name here, although we will create a list later
-wipfilename = "WIP Data 50627.xlsx"
+wipfilename = "WIP Data 50638.xlsx"
 
 # main routine
 def main():
@@ -179,11 +179,11 @@ def exportDataSql(dataList):
     cur = conn.cursor()
 
     # delete the database table if it exists...for testing only
-    cur.execute('''DROP TABLE IF EXISTS wipdata''')
+    # cur.execute('''DROP TABLE IF EXISTS wipdata''')
 
     # create the database
     cur.execute('''
-    CREATE TABLE wipdata (
+    CREATE TABLE IF NOT EXISTS wipdata (
     projectNumber TEXT, projectName INTEGER, wipDate TEXT, agreedVariationsNo INTEGER,
     budgetVariationsNo INTEGER, submittedVariationsNo INTEGER, variationsNoTotal INTEGER,
     orderValue INTEGER, agreedVariationsValue INTEGER, budgetVariationsValue INTEGER,
@@ -225,4 +225,5 @@ def exportDataSql(dataList):
     
 # Call main routine
 main()
+
 
