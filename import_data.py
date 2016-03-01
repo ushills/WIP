@@ -4,23 +4,77 @@
 from openpyxl import load_workbook
 import time
 import sqlite3
+import os
+import re
 
 # supress warnings
 import warnings 
 warnings.filterwarnings("ignore")
 
 # declare WIP excel file name here, although we will create a list later
-wipfilename = "WIP Data 50638.xlsx"
+# wipfilename = "WIP Data 50638.xlsx"
+directory = r'H:\Previous Months WIPS\2016 01 January\Current Month Wips\2. Midlands'
 
 # main routine
 def main():
+    # first extract the files from the directory
+    filelist = listFiles(directory)
+
+    # check the files are wip files
+    wipfiles = checkWipfile(filelist)
+
     # extract the data from the excel worksheet cells
-    wipData = importData(wipfilename)
-    print wipData['projectNumber']
-    exportDataSql(wipData)
+    # and export it to the sqldatabase
+    for wipfilename in wipfiles:
+        wipData = importData(wipfilename)
+        exportDataSql(wipData)
+
+
+# search through directory to only return excel files
+def listFiles(directory):
+    print 'searching for files.....'
+    filelist = []
+    for root, directories, filenames in os.walk(directory):
+        for filename in filenames:
+            rawfilename = str(os.path.join(root,filename))
+            #print rawfilename 
+            # check if the file is excel, i.e. ends .xlsx
+            if re.search(r"(.*).xlsx", rawfilename):
+                #print 'Appending', rawfilename
+                filelist.append(rawfilename)
+    print 'found', len(filelist), 'files'
+    return filelist
+
+# now check that the excel file is a wip file
+def checkWipfile(filelist):
+    filteredfilelist = []
+    print 'filtering files.....'
+    worksheetName = 'Executive Summary'
+    projectNameCell = ('A5')
+
+    # go through the filelist and check each file
+    for excelfile in filelist:
+        # Try to open the WIP excel file
+        try:
+            wipWorkbook = load_workbook(filename=excelfile, read_only=True, data_only=True)
+            # and try to open the worksheet
+            wipWorksheet = wipWorkbook[worksheetName]
+            #print 'checking file', excelfile
+        except:
+            #print excelfile, 'is not a wip file'
+            continue 
+        if (wipWorksheet[projectNameCell].value) != 'Project Name:':
+            #print excelfile, 'is not a wip file'
+            continue
+        else:
+            filteredfilelist.append(excelfile)
+            #print 'adding', excelfile, 'to wipfile list'
+    print 'filtered', len(filelist), 'files to', len(filteredfilelist), 'files'
+    return filteredfilelist
+
 
 # function to import wip data from excel file
-def importData(filename):
+def importData(wipfilename):
 
     # set variables for location of various fields
     # e.g. forecast sale, forecast cost, contribution, cost to date etc
@@ -166,22 +220,36 @@ def importData(filename):
 
 
     # extract cash information
-    wipData['latestApplication'] = int(wipWorksheet[latestApplicationRef].value)
-    wipData['totalCertified'] = int(wipWorksheet[totalCertifiedRef].value)
+    try:
+        wipData['latestApplication'] = int(wipWorksheet[latestApplicationRef].value)
+    except:
+        wipData['latestApplication'] = 0
+    try:
+        wipData['totalCertified'] = int(wipWorksheet[totalCertifiedRef].value)
+    except:
+        wipData['totalCertified'] = 0
 
     print 'All data imported sucessfully\n'
     return wipData 
 
 #function to import data into an SQL database
 def exportDataSql(dataList):
-    print dataList
+    #print dataList
+    projectName = dataList['projectName']
     conn = sqlite3.connect('wipdatadb.sqlite')
     cur = conn.cursor()
 
     # delete the database table if it exists...for testing only
     # cur.execute('''DROP TABLE IF EXISTS wipdata''')
+    
+    # create job name table
+    cur.execute('''
+    CREATE TABLE IF NOT EXISTS projectname (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+    name TEXT UNIQUE
+    )''')
 
-    # create the database
+    # create wipdata table
     cur.execute('''
     CREATE TABLE IF NOT EXISTS wipdata (
     projectNumber TEXT, projectName INTEGER, wipDate TEXT, agreedVariationsNo INTEGER,
@@ -194,6 +262,13 @@ def exportDataSql(dataList):
     bettermentsRisks INTEGER, managersView INTEGER, forecastMarginTotal INTEGER, 
     latestApplication INTEGER, totalCertified INTEGER)''')
 
+    # check if the project name exists in the table project name
+    cur.execute('''INSERT OR IGNORE INTO projectname (name)
+    VALUES ( ? )''', (projectName, ))
+    cur.execute('SELECT id FROM projectname WHERE name = ?', (projectName, ))
+    projectName_id = cur.fetchone()[0]
+    print projectName_id
+    
     # run through the data and allocate to each field
     cur.executemany('''INSERT INTO wipdata
     (projectNumber, projectName, wipDate, agreedVariationsNo,
