@@ -14,7 +14,8 @@ warnings.filterwarnings("ignore")
 # declare WIP excel file name here, although we will create a list later
 # wipfilename = "WIP Data 50638.xlsx"
 #directory = r'H:\Previous Months WIPS\2016 01 January\Current Month Wips\2. Midlands'
-directory = r'/home/ian/ownCloud/IESL/WIP'
+#directory = r'/home/ian/ownCloud/IESL/WIP'
+directory = r'U:\WIP'
 
 # main routine
 def main():
@@ -262,49 +263,38 @@ def exportDataSql(dataList):
     forecastSaleTotal INTEGER, currentCost INTEGER, costToComplete INTEGER,
     defectProvision INTEGER, forecastCostTotal INTEGER, contractContribution INTEGER,
     bettermentsRisks INTEGER, managersView INTEGER, forecastMarginTotal INTEGER, 
-    latestApplication INTEGER, totalCertified INTEGER)''')
+    latestApplication INTEGER, totalCertified INTEGER,
+    PRIMARY KEY (projectNumber, wipDate));''')
 
-    # check if the information in dataList already exists in the database
-    cur.execute('''
-    SELECT COUNT (*) FROM wipdata WHERE (projectName = ? AND
-    wipDate = ?)
-    ''', (projectName, wipDate))
-    count = cur.fetchone()[0]
-    print count
-    if count == 0:
-        print 'new record...inserting in database'
+    # check if the project name exists in the table project name
+    cur.execute('''INSERT OR IGNORE INTO projectname (name)
+    VALUES ( ? )''', (projectName, ))
+    cur.execute('SELECT id FROM projectname WHERE name = ?', (projectName, ))
+    projectName_id = cur.fetchone()[0]
+    dataList['projectName'] = projectName_id
 
-        # check if the project name exists in the table project name
-        cur.execute('''INSERT OR IGNORE INTO projectname (name)
-        VALUES ( ? )''', (projectName, ))
-        cur.execute('SELECT id FROM projectname WHERE name = ?', (projectName, ))
-        projectName_id = cur.fetchone()[0]
-        dataList['projectName'] = projectName_id
-
-        
-        # run through the data and allocate to each field
-        cur.executemany('''INSERT INTO wipdata
-        (projectNumber, projectName, wipDate, agreedVariationsNo,
-        budgetVariationsNo, submittedVariationsNo, variationsNoTotal,
-        orderValue, agreedVariationsValue, budgetVariationsValue,
-        submittedVariationsValue, saleSubtotal, reserveAgreed,
-        reserveBudget, reserveSubmitted, contracharges,
-        forecastSaleTotal, currentCost, costToComplete,
-        defectProvision, forecastCostTotal, contractContribution,
-        bettermentsRisks, managersView, forecastMarginTotal,
-        latestApplication, totalCertified)
-        VALUES
-        (:projectNumber, :projectName, :wipDate, :agreedVariationsNo,
-        :budgetVariationsNo, :submittedVariationsNo, :variationsNoTotal,
-        :orderValue, :agreedVariationsValue, :budgetVariationsValue,
-        :submittedVariationsValue, :saleSubtotal, :reserveAgreed,
-        :reserveBudget, :reserveSubmitted, :contracharges,
-        :forecastSaleTotal, :currentCost, :costToComplete,
-        :defectProvision, :forecastCostTotal, :contractContribution,
-        :bettermentsRisks, :managersView, :forecastMarginTotal,
-        :latestApplication, :totalCertified)''', [dataList])
-    else:
-        print 'record exists....skipping'
+    
+    # run through the data and allocate to each field
+    cur.executemany('''INSERT OR IGNORE INTO wipdata
+    (projectNumber, projectName, wipDate, agreedVariationsNo,
+    budgetVariationsNo, submittedVariationsNo, variationsNoTotal,
+    orderValue, agreedVariationsValue, budgetVariationsValue,
+    submittedVariationsValue, saleSubtotal, reserveAgreed,
+    reserveBudget, reserveSubmitted, contracharges,
+    forecastSaleTotal, currentCost, costToComplete,
+    defectProvision, forecastCostTotal, contractContribution,
+    bettermentsRisks, managersView, forecastMarginTotal,
+    latestApplication, totalCertified)
+    VALUES
+    (:projectNumber, :projectName, :wipDate, :agreedVariationsNo,
+    :budgetVariationsNo, :submittedVariationsNo, :variationsNoTotal,
+    :orderValue, :agreedVariationsValue, :budgetVariationsValue,
+    :submittedVariationsValue, :saleSubtotal, :reserveAgreed,
+    :reserveBudget, :reserveSubmitted, :contracharges,
+    :forecastSaleTotal, :currentCost, :costToComplete,
+    :defectProvision, :forecastCostTotal, :contractContribution,
+    :bettermentsRisks, :managersView, :forecastMarginTotal,
+    :latestApplication, :totalCertified)''', [dataList])
 
     # Commit the changes to the database
     conn.commit()
