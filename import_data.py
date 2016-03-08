@@ -3,19 +3,33 @@
 # import libraries 
 from openpyxl import load_workbook
 import time
+import datetime
 import sqlite3
 import os
 import re
+
+# import GUI libraries
+import _tkinter as tk
+#from Tkinter import tkFileDialog
+#from Tkinter import messagebox
+#from Tkinter.simpledialog import askstring
+
+# remove tkinter window
+#root = tk.Tk()
+#root.withdraw()
 
 # supress warnings
 import warnings 
 warnings.filterwarnings("ignore")
 
 # declare WIP excel file name here, although we will create a list later
-# wipfilename = "WIP Data 50638.xlsx"
-#directory = r'H:\Previous Months WIPS\2016 01 January\Current Month Wips\2. Midlands'
+directory = r'H:\Previous Months WIPS'
 #directory = r'/home/ian/ownCloud/IESL/WIP'
-directory = r'U:\WIP'
+#directory = r'U:\WIP'
+
+# get directory name as input
+inp = raw_input('Enter directory to import: ')
+directory = str(inp)
 
 # main routine
 def main():
@@ -149,7 +163,8 @@ def importData(wipfilename):
     # using the format wipData['field'] = wipWorksheet([fieldRef].value)
     wipData['projectName'] = (wipWorksheet[projectNameRef].value)
     wipData['projectNumber'] = (wipWorksheet[projectNumberRef].value) 
-    wipData['wipDate'] = (wipWorksheet[wipDateRef].value)
+    wipData['wipDate'] = str(wipWorksheet[wipDateRef].value)
+    wipData['wipDate'] = (wipData['wipDate'].rsplit(' '))[0] 
     wipDateFormatted = wipData['wipDate']
     print 'Extracting', wipData['projectNumber'], '-', wipData['projectName'], 'data for', wipDateFormatted,'\n'
 
