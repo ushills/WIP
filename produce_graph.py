@@ -11,44 +11,49 @@ import re
 
 # main routine
 def main():
-    searchData = inputJobNo()
+    searchData = inputProjectNumber()
     graphData = importDataSql(searchData)
-    print graphData
     plotGraph(graphData)
 
 # function to read data from SQL database based on job number & months
 def importDataSql(searchData):
+    # temp variable to import the data we want
+    # we will get this variable from the routine call in future
+    # request = "wipdate, forecastCostTotal, forecastSaleTotal, forecastMarginTotal"
+    # print request
+    
     # split out searchData and connect to database
-    jobNo = searchData[0]
+    projectNumber = searchData[0]
     months = searchData[1]
     conn = sqlite3.connect('wipdatadb.sqlite')
     cur = conn.cursor()
 
     # extract seachdata
     cur.execute('''
-    SELECT wipDate, forecastMarginTotal FROM wipdata 
+    SELECT wipdate, projectNumber, forecastCostTotal, forecastSaletotal,
+    forecastMarginTotal FROM wipdata 
     JOIN projectName ON wipdata.projectName = projectname.id
-    WHERE projectNumber = ?
+    WHERE projectNumber = :projectNumber 
     ORDER BY wipdate
-    DESC LIMIT ?  
-    ''', (jobNo, months))
+    DESC LIMIT :months  
+    ''', {'projectNumber': projectNumber, 'months': months})
 
     all_rows = cur.fetchall()
-    print all_rows
-    print len(all_rows) 
+    # print all_rows
+    # print len(all_rows) 
     
     return all_rows
 
 # function to request job number to graph and months history
 # i.e. LIMIT default graph last 12 months
-def inputJobNo():
+def inputProjectNumber():
     while True:
         inp = raw_input('Enter the project to graph: ')
         if not re.search(r"\d{5}", inp):
             print 'Enter a valid job number:'
             continue
         else:
-            jobNo = str(inp)
+            projectNumber = str(inp)
             break
 
     while True:
@@ -60,40 +65,100 @@ def inputJobNo():
             months = inp
             break
 
-    return (jobNo, months)
+    return (projectNumber, months)
 
 
 
 # function to produce and output graph
 def plotGraph(graphData):
 
+    # create the lists
     dates = []
-    y = []
+    projectNumber = []
+    forecastCost = []
+    forecastSale = []
+    forecastContribution = []
 
-# loop through the list graphData to extract the x and y axis
+    # loop through the list graphData to extract the x and y axis
+    # data is produced in the folllowing format
+    # [(u'2016-01-31', -1355036), (u'2015-12-31', -1354858), 
     for data in graphData:
         dates.append(data[0])
-        y.append(data[1])
+        projectNumber.append(data[1])
+        forecastCost.append(data[2]/1000)
+        forecastSale.append(data[3]/1000)
+        forecastContribution.append(data[4]/1000)
 
-    print dates
-    print y
+    # format the dates in the correct format to show
+    dates = [datetime.datetime.strptime(d, '%Y-%m-%d').date() for d in dates]
+ 
+    # These are the "Tableau 20" colors as RGB.  
+    tableau20 = [(31, 119, 180), (174, 199, 232), (255, 127, 14), (255, 187, 120),  
+                 (44, 160, 44), (152, 223, 138), (214, 39, 40), (255, 152, 150),  
+                 (148, 103, 189), (197, 176, 213), (140, 86, 75), (196, 156, 148),  
+                 (227, 119, 194), (247, 182, 210), (127, 127, 127), (199, 199, 199),  
+                 (188, 189, 34), (219, 219, 141), (23, 190, 207), (158, 218, 229)]
+    
+    # Scale the RGB values to the [0, 1] range, which is the format matplotlib accepts.  
+    for i in range(len(tableau20)):  
+        r, g, b = tableau20[i]  
+        tableau20[i] = (r / 255., g / 255., b / 255.)  
 
-    x = [datetime.datetime.strptime(d, '%Y-%m-%d').date() for d in dates]
-    print x
-    #y = range(len(x))
-    #plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d/%m/%Y'))
-    #plt.gca().xaxis.set_major_formatter(mdates.DayLocator())
-# data is produced in the folllowing format
-# [(u'2016-01-31', -1355036), (u'2015-12-31', -1354858), 
-# (u'2015-11-30', -1233022), (u'2015-10-31', -983396), 
-# (u'2015-09-30', -896752), (u'2015-08-31', -863247), 
-# (u'2015-07-31', -678451), (u'2015-06-30', -563631), 
-# (u'2015-05-31', -644057), (u'2015-04-30', -480037), 
-# (u'2015-03-31', -331675), (u'2015-02-28', -371312)]
-    plt.plot(x, y)
+    # You typically want your plot to be ~1.33x wider than tall. This plot is a rare  
+    # exception because of the number of lines being plotted on it.  
+    # Common sizes: (10, 7.5) and (12, 9)  
+    plt.figure(figsize=(12, 9))
+    #fig = plt.figure() 
+
+    # Remove the plot frame lines
+    ax = plt.subplot(111)  
+    ax.spines["top"].set_visible(False)  
+    ax.spines["bottom"].set_visible(False)  
+    ax.spines["right"].set_visible(False)  
+    ax.spines["left"].set_visible(False)  
+
+    # set xlim to show all dates
+    plt.xlim(dates[-1], dates[0]+ (datetime.timedelta(days=32)))
+
+    # Ensure that the axis ticks only show up on the bottom and left of the plot.  
+    # Ticks on the right and top of the plot are generally unnecessary chartjunk.  
+    ax.get_xaxis().tick_bottom()  
+    ax.get_yaxis().tick_left() 
+
+    # plot the data
+    forecastCostLine = plt.plot(dates, forecastCost, lw=2.5, color=tableau20[0], label='Cost')
+    forecastSaleLine = plt.plot(dates, forecastSale, lw=2.5, color=tableau20[1], label='Sale')
+    forecastContributionLine = plt.plot(dates, forecastContribution, lw=2.5, color=tableau20[2], label='Contribution')
+    
+    # add a text label to the right end of every drawn line
+    # first get the last value of each line
+    yPosForecastCost = forecastCost[0]
+    yPosForecastSale = forecastSale[0]
+    yPosForecastContribution = forecastContribution[0]
+    print dates[0]
+    xPosLabel = (dates[0] + (datetime.timedelta(days=7)))
+
+    plt.text(xPosLabel, yPosForecastCost, 'Cost', fontsize=14, color=tableau20[0], verticalalignment='center')
+    plt.text(xPosLabel, yPosForecastSale, 'Sale', fontsize=14, color=tableau20[1], verticalalignment='center')
+    plt.text(xPosLabel, yPosForecastContribution, 'Contribution', fontsize=14, color=tableau20[2], verticalalignment='center')
+
+    # set the title of the graph
+    title = projectNumber[0] + '\nForecast Sale, Cost and Contribution'
+    # print 'title set to', title
+    ax.set_title(title, fontsize=17, ha='center')
+
+    # add the legend
+    # ax.legend(frameon=False)
     plt.gcf().autofmt_xdate()
-    plt.show
-    plt.savefig('contribution.png', bbox_inches='tight')
+
+    # data source and notice
+    # yPosNotice = min(min(forecastCost), min(forecastSale), min(forecastContribution))
+    # plt.text(min(dates), yPosNotice, 'Data source: H:\Previous Months WIPS' 
+    #        '\nAuthor: Ian Hill (ian.hill@interserve.com)', fontsize=10)
+    
+    # plot the graph and save
+    # plt.show()
+    plt.savefig((projectNumber[0]+' contribution graph.png'), bbox_inches='tight')
 
 # call main routine
 main()
