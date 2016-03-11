@@ -19,7 +19,7 @@ def main():
 def importDataSql(searchData):
     # temp variable to import the data we want
     # we will get this variable from the routine call in future
-    # request = "wipdate, forecastCostTotal, forecastSaleTotal, forecastMarginTotal"
+    request = "wipdate, projectNumber, forecastCostTotal, forecastSaleTotal, forecastMarginTotal"
     # print request
     
     # split out searchData and connect to database
@@ -30,8 +30,8 @@ def importDataSql(searchData):
 
     # extract seachdata
     cur.execute('''
-    SELECT wipdate, projectNumber, forecastCostTotal, forecastSaletotal,
-    forecastMarginTotal FROM wipdata 
+    SELECT ''' + request + ''' 
+    FROM wipdata 
     JOIN projectName ON wipdata.projectName = projectname.id
     WHERE projectNumber = :projectNumber 
     ORDER BY wipdate
