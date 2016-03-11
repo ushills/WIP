@@ -19,7 +19,7 @@ def main():
 def importDataSql(searchData):
     # temp variable to import the data we want
     # we will get this variable from the routine call in future
-    request = "wipdate, projectNumber, forecastCostTotal, forecastSaleTotal, forecastMarginTotal"
+    request = "wipdate, projectNumber, projectname.name, forecastCostTotal, forecastSaleTotal, forecastMarginTotal"
     # print request
     
     # split out searchData and connect to database
@@ -32,7 +32,8 @@ def importDataSql(searchData):
     cur.execute('''
     SELECT ''' + request + ''' 
     FROM wipdata 
-    JOIN projectName ON wipdata.projectName = projectname.id
+    JOIN projectName
+    ON wipdata.projectName = projectname.id
     WHERE projectNumber = :projectNumber 
     ORDER BY wipdate
     DESC LIMIT :months  
@@ -75,6 +76,7 @@ def plotGraph(graphData):
     # create the lists
     dates = []
     projectNumber = []
+    projectName = []
     forecastCost = []
     forecastSale = []
     forecastContribution = []
@@ -85,9 +87,10 @@ def plotGraph(graphData):
     for data in graphData:
         dates.append(data[0])
         projectNumber.append(data[1])
-        forecastCost.append(data[2]/1000)
-        forecastSale.append(data[3]/1000)
-        forecastContribution.append(data[4]/1000)
+        projectName.append(data[2])
+        forecastCost.append(data[3]/1000)
+        forecastSale.append(data[4]/1000)
+        forecastContribution.append(data[5]/1000)
 
     # format the dates in the correct format to show
     dates = [datetime.datetime.strptime(d, '%Y-%m-%d').date() for d in dates]
@@ -111,19 +114,21 @@ def plotGraph(graphData):
     #fig = plt.figure() 
 
     # Remove the plot frame lines
-    ax = plt.subplot(111)  
-    ax.spines["top"].set_visible(False)  
-    ax.spines["bottom"].set_visible(False)  
-    ax.spines["right"].set_visible(False)  
-    ax.spines["left"].set_visible(False)  
+    ax1 = plt.subplot(111)  
+    ax1.spines["top"].set_visible(False)  
+    ax1.spines["bottom"].set_visible(False)  
+    ax1.spines["right"].set_visible(False)  
+    ax1.spines["left"].set_visible(False)  
 
     # set xlim to show all dates
     plt.xlim(dates[-1], dates[0]+ (datetime.timedelta(days=32)))
 
     # Ensure that the axis ticks only show up on the bottom and left of the plot.  
     # Ticks on the right and top of the plot are generally unnecessary chartjunk.  
-    ax.get_xaxis().tick_bottom()  
-    ax.get_yaxis().tick_left() 
+    ax1.get_xaxis().tick_bottom()  
+    ax1.get_yaxis().tick_left() 
+   
+    # set the y axis to format values with commas, i.e. thousands
 
     # plot the data
     forecastCostLine = plt.plot(dates, forecastCost, lw=2.5, color=tableau20[0], label='Cost')
@@ -142,13 +147,17 @@ def plotGraph(graphData):
     plt.text(xPosLabel, yPosForecastSale, 'Sale', fontsize=14, color=tableau20[1], verticalalignment='center')
     plt.text(xPosLabel, yPosForecastContribution, 'Contribution', fontsize=14, color=tableau20[2], verticalalignment='center')
 
+    # set the y axis label
+    ylabel = u'\xA3/k'
+    ax1.set_ylabel(ylabel, fontsize=14, rotation='vertical')
+    
     # set the title of the graph
-    title = projectNumber[0] + '\nForecast Sale, Cost and Contribution'
+    title = projectName[0] + ' (' + projectNumber[0] + ')' + '\nForecast Sale, Cost and Contribution'
     # print 'title set to', title
-    ax.set_title(title, fontsize=17, ha='center')
+    ax1.set_title(title, fontsize=17, ha='center')
 
     # add the legend
-    # ax.legend(frameon=False)
+    # ax1.legend(frameon=False)
     plt.gcf().autofmt_xdate()
 
     # data source and notice
