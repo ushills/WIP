@@ -19,7 +19,7 @@ def main():
 def importDataSql(searchData):
     # temp variable to import the data we want
     # we will get this variable from the routine call in future
-    request = "wipdate, projectNumber, projectname.name, forecastCostTotal, forecastSaleTotal, forecastMarginTotal"
+    request = "wipdate, projectNumber, projectname.name, forecastCostTotal, forecastSaleTotal, forecastMarginTotal, currentCost, totalCertified"
     # print request
     
     # split out searchData and connect to database
@@ -58,7 +58,8 @@ def inputProjectNumber():
             break
 
     while True:
-        inp = raw_input('Enter the range: ')
+        # inp = raw_input('Enter the range: ')
+        inp = '12'
         if not re.search(r"\d{1,2}", inp):
             print 'range between 1 and 24 months'
             continue
@@ -73,6 +74,30 @@ def inputProjectNumber():
 # function to produce and output graph
 def plotGraph(graphData):
 
+    # Set the common variables
+    
+    # These are the "Tableau 20" colors as RGB.  
+    tableau20 = [(31, 119, 180), (174, 199, 232), (255, 127, 14), (255, 187, 120),  
+                 (44, 160, 44), (152, 223, 138), (214, 39, 40), (255, 152, 150),  
+                 (148, 103, 189), (197, 176, 213), (140, 86, 75), (196, 156, 148),  
+                 (227, 119, 194), (247, 182, 210), (127, 127, 127), (199, 199, 199),  
+                 (188, 189, 34), (219, 219, 141), (23, 190, 207), (158, 218, 229)]
+    
+    # Scale the RGB values to the [0, 1] range, which is the format matplotlib accepts.  
+    for i in range(len(tableau20)):  
+        r, g, b = tableau20[i]  
+        tableau20[i] = (r / 255., g / 255., b / 255.)  
+
+    # You typically want your plot to be ~1.33x wider than tall. This plot is a rare  
+    # exception because of the number of lines being plotted on it.  
+    # Common sizes: (10, 7.5) and (12, 9)  
+    plt.figure(figsize=(12, 9))
+    # fig = plt.figure() 
+    
+    fig, (ax, ax3) = plt.subplots(nrows=2)
+    ax2 = ax.twinx()
+
+    # Create the forcast totals graph
     # create the lists
     dates = []
     projectNumber = []
@@ -95,27 +120,12 @@ def plotGraph(graphData):
     # format the dates in the correct format to show
     dates = [datetime.datetime.strptime(d, '%Y-%m-%d').date() for d in dates]
  
-    # These are the "Tableau 20" colors as RGB.  
-    tableau20 = [(31, 119, 180), (174, 199, 232), (255, 127, 14), (255, 187, 120),  
-                 (44, 160, 44), (152, 223, 138), (214, 39, 40), (255, 152, 150),  
-                 (148, 103, 189), (197, 176, 213), (140, 86, 75), (196, 156, 148),  
-                 (227, 119, 194), (247, 182, 210), (127, 127, 127), (199, 199, 199),  
-                 (188, 189, 34), (219, 219, 141), (23, 190, 207), (158, 218, 229)]
-    
-    # Scale the RGB values to the [0, 1] range, which is the format matplotlib accepts.  
-    for i in range(len(tableau20)):  
-        r, g, b = tableau20[i]  
-        tableau20[i] = (r / 255., g / 255., b / 255.)  
+    # figure title
 
-    # You typically want your plot to be ~1.33x wider than tall. This plot is a rare  
-    # exception because of the number of lines being plotted on it.  
-    # Common sizes: (10, 7.5) and (12, 9)  
-    plt.figure(figsize=(12, 9))
-    fig = plt.figure() 
 
     # create the two axis 
-    ax = plt.subplot(111)  
-    ax2 = plt.subplot(111)  
+    # ax = plt.subplot(211)  
+    # ax2 = plt.subplot(211)  
 
     # Ensure that the axis ticks only show up on the bottom and left of the plot.  
     # Ticks on the right and top of the plot are generally unnecessary chartjunk.  
@@ -125,9 +135,8 @@ def plotGraph(graphData):
     ax2.get_yaxis().tick_right()
    
     # plot the data
-    forecastSaleLine = ax.plot(dates, forecastSale, lw=2.5, color=tableau20[16], label='Sale')
-    forecastCostLine = ax.plot(dates, forecastCost, lw=2.5, color=tableau20[0], label='Cost')
-    ax2 = ax.twinx()
+    forecastSaleLine = ax.plot(dates, forecastSale, lw=2.5, color=tableau20[5], label='Forecast Sale')
+    forecastCostLine = ax.plot(dates, forecastCost, lw=2.5, color=tableau20[0], label='Forecast Cost')
     forecastContributionLine = ax2.plot(dates, forecastContribution, lw=2.5, color=tableau20[2], label='Contribution')
     
     # set the y axis label
@@ -138,23 +147,62 @@ def plotGraph(graphData):
         tl.set_color(tableau20[2])
     
     # set the title of the graph
-    title = projectName[0] + ' (' + projectNumber[0] + ')' + '\nForecast Sale, Cost and Contribution\n'
-    ax.set_title(title, fontsize=17, ha='center')
+    title =  (projectName[0] + ' (' + projectNumber[0] + ')\n')
+    ax.set_title(title, fontsize=16, ha='center')
 
+    plt.gcf().autofmt_xdate()
+
+
+
+    # create the to-date graph
+    # create the lists
+    dates = []
+    projectNumber = []
+    projectName = []
+    currentCost = []
+    totalCertified = []
+
+    # loop through the list graphData to extract the x and y axis
+    # data is produced in the folllowing format
+    # [(u'2016-01-31', -1355036), (u'2015-12-31', -1354858), 
+    for data in graphData:
+        dates.append(data[0])
+        projectNumber.append(data[1])
+        projectName.append(data[2])
+        currentCost.append(data[6]/1000)
+        totalCertified.append(data[7]/1000)
+
+    # format the dates in the correct format to show
+    dates = [datetime.datetime.strptime(d, '%Y-%m-%d').date() for d in dates]
+ 
+    # create the axis 
+    # ax3 = plt.subplot(212)
+ 
+    # Ensure that the axis ticks only show up on the bottom and left of the plot.  
+    # Ticks on the right and top of the plot are generally unnecessary chartjunk.  
+    ax3.get_xaxis().tick_bottom()  
+    ax3.get_yaxis().tick_left() 
+   
+    # plot the data
+    currentCostline= ax3.plot(dates, currentCost, lw=2.5, color=tableau20[11], label='Cost')
+    totalCertifiedline = ax3.plot(dates, totalCertified, lw=2.5, color=tableau20[6], label='Certified')
+ 
+    # set the y axis label
+    ylabel = u'\xA3k'
+    ax3.set_ylabel(ylabel, fontsize=14, rotation='vertical')
+    
     # add the legend
     # shrink the axis height by 10% at the bottom
-    box = ax.get_position()
-    ax.set_position([box.x0, box.y0 + box.height * 0.1, box.width, box.height * 0.9])
-    ax2.set_position([box.x0, box.y0 + box.height * 0.1, box.width, box.height * 0.9])
-
+    box = ax3.get_position()
+    ax3.set_position([box.x0, box.y0 + box.height * 0.1, box.width, box.height * 0.9])
+ 
     # combine ax1 and ax2 labels
     lines, labels = ax.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
+    lines3, labels3 = ax3.get_legend_handles_labels()
 
     # place the legend below the axis
-    ax.legend(lines + lines2, labels + labels2, loc='upper center', fontsize=12, bbox_to_anchor=(0.5, -0.15), fancybox=True, shadow=True, ncol=5)
-
-    plt.gcf().autofmt_xdate()
+    ax3.legend(lines + lines2 + lines3, labels + labels2 + labels3, loc='upper center', fontsize=10, bbox_to_anchor=(0.5, -0.35), fancybox=True, shadow=True, ncol=5) 
 
     # plot the graph and save
     # plt.show()
