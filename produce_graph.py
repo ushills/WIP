@@ -111,29 +111,40 @@ def plotGraph(graphData):
     # exception because of the number of lines being plotted on it.  
     # Common sizes: (10, 7.5) and (12, 9)  
     plt.figure(figsize=(12, 9))
-    #fig = plt.figure() 
+    fig = plt.figure() 
 
-    # Remove the plot frame lines
-    ax1 = plt.subplot(111)  
-    ax1.spines["top"].set_visible(False)  
-    ax1.spines["bottom"].set_visible(False)  
-    ax1.spines["right"].set_visible(False)  
-    ax1.spines["left"].set_visible(False)  
+    # Remove the plot frame lines from the ax axis
+    ax = plt.subplot(111)  
+#    ax.spines["top"].set_visible(False)  
+#    ax.spines["bottom"].set_visible(False)  
+#    ax.spines["right"].set_visible(False)  
+#    ax.spines["left"].set_visible(False)  
+
+    # Remove the plot frame lines from the ax2 axis
+    ax2 = plt.subplot(111)  
+#    ax2.spines["top"].set_visible(False)  
+#    ax2.spines["bottom"].set_visible(False)  
+#    ax2.spines["right"].set_visible(False)  
+#    ax2.spines["left"].set_visible(False)  
+
 
     # set xlim to show all dates
     plt.xlim(dates[-1], dates[0]+ (datetime.timedelta(days=32)))
 
     # Ensure that the axis ticks only show up on the bottom and left of the plot.  
     # Ticks on the right and top of the plot are generally unnecessary chartjunk.  
-    ax1.get_xaxis().tick_bottom()  
-    ax1.get_yaxis().tick_left() 
+    ax.get_xaxis().tick_bottom()  
+    ax.get_yaxis().tick_left() 
+    ax2.get_xaxis().tick_bottom()
+    ax2.get_yaxis().tick_right()
    
     # set the y axis to format values with commas, i.e. thousands
 
     # plot the data
-    forecastCostLine = plt.plot(dates, forecastCost, lw=2.5, color=tableau20[0], label='Cost')
-    forecastSaleLine = plt.plot(dates, forecastSale, lw=2.5, color=tableau20[1], label='Sale')
-    forecastContributionLine = plt.plot(dates, forecastContribution, lw=2.5, color=tableau20[2], label='Contribution')
+    forecastCostLine = ax.plot(dates, forecastCost, lw=2.5, color=tableau20[0], label='Cost')
+    forecastSaleLine = ax.plot(dates, forecastSale, lw=2.5, color=tableau20[16], label='Sale')
+    ax2 = ax.twinx()
+    forecastContributionLine = ax2.plot(dates, forecastContribution, lw=2.5, color=tableau20[2], label='Contribution')
     
     # add a text label to the right end of every drawn line
     # first get the last value of each line
@@ -141,23 +152,26 @@ def plotGraph(graphData):
     yPosForecastSale = forecastSale[0]
     yPosForecastContribution = forecastContribution[0]
     print dates[0]
-    xPosLabel = (dates[0] + (datetime.timedelta(days=7)))
+    xPosLabel = (dates[0] + (datetime.timedelta(days=31)))
 
-    plt.text(xPosLabel, yPosForecastCost, 'Cost', fontsize=14, color=tableau20[0], verticalalignment='center')
-    plt.text(xPosLabel, yPosForecastSale, 'Sale', fontsize=14, color=tableau20[1], verticalalignment='center')
-    plt.text(xPosLabel, yPosForecastContribution, 'Contribution', fontsize=14, color=tableau20[2], verticalalignment='center')
+    ax.text(xPosLabel, yPosForecastCost, 'Cost', fontsize=14, color=tableau20[0], verticalalignment='center')
+    ax.text(xPosLabel, yPosForecastSale, 'Sale', fontsize=14, color=tableau20[16], verticalalignment='center')
+    ax2.text(xPosLabel, yPosForecastContribution, 'Contribution', fontsize=14, color=tableau20[2], verticalalignment='center')
 
     # set the y axis label
-    ylabel = u'\xA3/k'
-    ax1.set_ylabel(ylabel, fontsize=14, rotation='vertical')
+    ylabel = u'\xA3k'
+    ax.set_ylabel(ylabel, fontsize=14, rotation='vertical')
+    ax2.set_ylabel(ylabel, fontsize=14, rotation='vertical', color=tableau20[2])
+    for tl in ax2.get_yticklabels():
+        tl.set_color(tableau20[2])
     
     # set the title of the graph
     title = projectName[0] + ' (' + projectNumber[0] + ')' + '\nForecast Sale, Cost and Contribution'
     # print 'title set to', title
-    ax1.set_title(title, fontsize=17, ha='center')
+    ax.set_title(title, fontsize=17, ha='center')
 
     # add the legend
-    # ax1.legend(frameon=False)
+    # ax.legend(frameon=False)
     plt.gcf().autofmt_xdate()
 
     # data source and notice
