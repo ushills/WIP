@@ -113,23 +113,9 @@ def plotGraph(graphData):
     plt.figure(figsize=(12, 9))
     fig = plt.figure() 
 
-    # Remove the plot frame lines from the ax axis
+    # create the two axis 
     ax = plt.subplot(111)  
-#    ax.spines["top"].set_visible(False)  
-#    ax.spines["bottom"].set_visible(False)  
-#    ax.spines["right"].set_visible(False)  
-#    ax.spines["left"].set_visible(False)  
-
-    # Remove the plot frame lines from the ax2 axis
     ax2 = plt.subplot(111)  
-#    ax2.spines["top"].set_visible(False)  
-#    ax2.spines["bottom"].set_visible(False)  
-#    ax2.spines["right"].set_visible(False)  
-#    ax2.spines["left"].set_visible(False)  
-
-
-    # set xlim to show all dates
-    plt.xlim(dates[-1], dates[0]+ (datetime.timedelta(days=32)))
 
     # Ensure that the axis ticks only show up on the bottom and left of the plot.  
     # Ticks on the right and top of the plot are generally unnecessary chartjunk.  
@@ -138,26 +124,12 @@ def plotGraph(graphData):
     ax2.get_xaxis().tick_bottom()
     ax2.get_yaxis().tick_right()
    
-    # set the y axis to format values with commas, i.e. thousands
-
     # plot the data
-    forecastCostLine = ax.plot(dates, forecastCost, lw=2.5, color=tableau20[0], label='Cost')
     forecastSaleLine = ax.plot(dates, forecastSale, lw=2.5, color=tableau20[16], label='Sale')
+    forecastCostLine = ax.plot(dates, forecastCost, lw=2.5, color=tableau20[0], label='Cost')
     ax2 = ax.twinx()
     forecastContributionLine = ax2.plot(dates, forecastContribution, lw=2.5, color=tableau20[2], label='Contribution')
     
-    # add a text label to the right end of every drawn line
-    # first get the last value of each line
-    yPosForecastCost = forecastCost[0]
-    yPosForecastSale = forecastSale[0]
-    yPosForecastContribution = forecastContribution[0]
-    print dates[0]
-    xPosLabel = (dates[0] + (datetime.timedelta(days=31)))
-
-    ax.text(xPosLabel, yPosForecastCost, 'Cost', fontsize=14, color=tableau20[0], verticalalignment='center')
-    ax.text(xPosLabel, yPosForecastSale, 'Sale', fontsize=14, color=tableau20[16], verticalalignment='center')
-    ax2.text(xPosLabel, yPosForecastContribution, 'Contribution', fontsize=14, color=tableau20[2], verticalalignment='center')
-
     # set the y axis label
     ylabel = u'\xA3k'
     ax.set_ylabel(ylabel, fontsize=14, rotation='vertical')
@@ -166,22 +138,27 @@ def plotGraph(graphData):
         tl.set_color(tableau20[2])
     
     # set the title of the graph
-    title = projectName[0] + ' (' + projectNumber[0] + ')' + '\nForecast Sale, Cost and Contribution'
-    # print 'title set to', title
+    title = projectName[0] + ' (' + projectNumber[0] + ')' + '\nForecast Sale, Cost and Contribution\n'
     ax.set_title(title, fontsize=17, ha='center')
 
     # add the legend
-    # ax.legend(frameon=False)
+    # shrink the axis height by 10% at the bottom
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0 + box.height * 0.1, box.width, box.height * 0.9])
+    ax2.set_position([box.x0, box.y0 + box.height * 0.1, box.width, box.height * 0.9])
+
+    # combine ax1 and ax2 labels
+    lines, labels = ax.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+
+    # place the legend below the axis
+    ax.legend(lines + lines2, labels + labels2, loc='upper center', fontsize=12, bbox_to_anchor=(0.5, -0.15), fancybox=True, shadow=True, ncol=5)
+
     plt.gcf().autofmt_xdate()
 
-    # data source and notice
-    # yPosNotice = min(min(forecastCost), min(forecastSale), min(forecastContribution))
-    # plt.text(min(dates), yPosNotice, 'Data source: H:\Previous Months WIPS' 
-    #        '\nAuthor: Ian Hill (ian.hill@interserve.com)', fontsize=10)
-    
     # plot the graph and save
     # plt.show()
-    plt.savefig((projectNumber[0]+' contribution graph.png'), bbox_inches='tight')
+    plt.savefig((projectNumber[0]+' forecast totals graph.png'), bbox_inches='tight')
 
 # call main routine
 main()
