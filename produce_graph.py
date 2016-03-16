@@ -12,14 +12,22 @@ import re
 # main routine
 def main():
     searchData = inputProjectNumber()
-    graphData = importDataSql(searchData)
-    plotGraph(graphData)
+
+    # plot the Forecast Data graph
+    request = "wipdate, projectNumber, projectname.name, forecastCostTotal, forecastSaleTotal, forecastMarginTotal, currentCost, totalCertified"
+    graphData = importDataSql(searchData, request)
+    plotForecastGraph(graphData)
+
+    # plot the variation histogram
+    request = "wipdate, projectNumber, projectname.name, agreedVariationsNo, budgetVariationsNo, submittedVariationsNo, agreedVariationsValue, budgetVariationsValue, submittedVariationsValue" 
+    graphData = importDataSql(searchData, request)
+    plotVariationGraph(graphData)
+
 
 # function to read data from SQL database based on job number & months
-def importDataSql(searchData):
+def importDataSql(searchData, request):
     # temp variable to import the data we want
     # we will get this variable from the routine call in future
-    request = "wipdate, projectNumber, projectname.name, forecastCostTotal, forecastSaleTotal, forecastMarginTotal, currentCost, totalCertified"
     # print request
     
     # split out searchData and connect to database
@@ -71,8 +79,8 @@ def inputProjectNumber():
 
 
 
-# function to produce and output graph
-def plotGraph(graphData):
+# function to produce and output forecast graph
+def plotForecastGraph(graphData):
 
     # Set the common variables
     
@@ -120,13 +128,6 @@ def plotGraph(graphData):
     # format the dates in the correct format to show
     dates = [datetime.datetime.strptime(d, '%Y-%m-%d').date() for d in dates]
  
-    # figure title
-
-
-    # create the two axis 
-    # ax = plt.subplot(211)  
-    # ax2 = plt.subplot(211)  
-
     # Ensure that the axis ticks only show up on the bottom and left of the plot.  
     # Ticks on the right and top of the plot are generally unnecessary chartjunk.  
     ax.get_xaxis().tick_bottom()  
@@ -207,6 +208,140 @@ def plotGraph(graphData):
     # plot the graph and save
     # plt.show()
     plt.savefig((projectNumber[0]+' forecast totals graph.png'), bbox_inches='tight')
+
+# function to produce and output variation graph
+def plotVariationGraph(graphData):
+
+    # Set the common variables
+    
+    # These are the "Tableau 20" colors as RGB.  
+    tableau20 = [(31, 119, 180), (174, 199, 232), (255, 127, 14), (255, 187, 120),  
+                 (44, 160, 44), (152, 223, 138), (214, 39, 40), (255, 152, 150),  
+                 (148, 103, 189), (197, 176, 213), (140, 86, 75), (196, 156, 148),  
+                 (227, 119, 194), (247, 182, 210), (127, 127, 127), (199, 199, 199),  
+                 (188, 189, 34), (219, 219, 141), (23, 190, 207), (158, 218, 229)]
+    
+    # Scale the RGB values to the [0, 1] range, which is the format matplotlib accepts.  
+    for i in range(len(tableau20)):  
+        r, g, b = tableau20[i]  
+        tableau20[i] = (r / 255., g / 255., b / 255.)  
+
+    # You typically want your plot to be ~1.33x wider than tall. This plot is a rare  
+    # exception because of the number of lines being plotted on it.  
+    # Common sizes: (10, 7.5) and (12, 9)  
+    plt.figure(figsize=(12, 9))
+    # fig = plt.figure() 
+    
+    fig, (ax, ax2) = plt.subplots(nrows=2)
+
+    # Create the forcast totals graph
+    # create the lists
+    dates = []
+    projectNumber = []
+    projectName = []
+    agreedVariationNo = []
+    budgetVariationNo = []
+    submittedVariationNo = []
+    agreedVariationValue = []
+    budgetVariationValue = []
+    submittedVariationValue = []
+
+    # loop through the list graphData to extract the x and y axis
+    # data is produced in the folllowing format
+    # [(u'2016-01-31', -1355036), (u'2015-12-31', -1354858), 
+    for data in graphData:
+        dates.append(str(data[0]))
+        projectNumber.append(data[1])
+        projectName.append(data[2])
+        agreedVariationNo.append(data[3])
+        budgetVariationNo.append(data[4])
+        submittedVariationNo.append(data[5])
+        agreedVariationValue.append(data[6])
+        budgetVariationValue.append(data[7])
+        submittedVariationValue.append(data[8])
+
+    # format the dates in the correct format to show
+    # dates = [datetime.datetime.strptime(d, '%Y-%m-%d').date() for d in dates]
+    dates.reverse()
+    projectNumber.reverse() 
+    projectName.reverse() 
+    agreedVariationNo.reverse() 
+    budgetVariationNo.reverse() 
+    submittedVariationNo.reverse() 
+    agreedVariationValue.reverse() 
+    budgetVariationValue.reverse() 
+    submittedVariationValue.reverse() 
+    print dates
+    bins = range(len(dates))
+    widthDate = 0.9
+ 
+    # Ensure that the axis ticks only show up on the bottom and left of the plot.  
+    # Ticks on the right and top of the plot are generally unnecessary chartjunk.  
+    ax.get_xaxis().tick_bottom()  
+    ax.get_yaxis().tick_left() 
+   
+    # plot the data
+    # as this is a stacked graph first we need to zip the arrays for the 
+    # bottom statement
+
+    cumulativeNoHist = [a+b for a,b in zip(agreedVariationNo, submittedVariationNo)]
+
+    # plot the bars
+    agreedVariationNoHist = ax.bar(bins, agreedVariationNo, width=widthDate, color=tableau20[5], label='Agreed')
+    submittedVariationNoHist = ax.bar(bins, submittedVariationNo, bottom=agreedVariationNo, width=widthDate, color=tableau20[7], label='Submitted')
+    budgetVariationNoHist = ax.bar(bins, budgetVariationNo, bottom=cumulativeNoHist, width=widthDate, color=tableau20[6], label='Budget')
+
+    # set the y axis label
+    ylabel = u'No of Variations'
+    ax.set_ylabel(ylabel, fontsize=14, rotation='vertical')
+    
+    # set the title of the graph
+    title =  (projectName[0] + ' (' + projectNumber[0] + ')\n')
+    ax.set_title(title, fontsize=16, ha='center')
+
+    plt.gcf().autofmt_xdate()
+
+
+
+    # Ensure that the axis ticks only show up on the bottom and left of the plot.  
+    # Ticks on the right and top of the plot are generally unnecessary chartjunk.  
+    ax2.get_xaxis().tick_bottom()  
+    ax2.get_yaxis().tick_left() 
+   
+    # plot the data
+    # first set the width of the bins for side by side bar chart
+    widthDate = 0.3
+    cumulativebin = [x + widthDate for x in bins] 
+    cumulativebin2 = [x + (2 * widthDate) for x in bins]
+            
+    # plot the bars
+    agreedVariationValueHist = ax2.bar(bins, agreedVariationValue, width=widthDate, color=tableau20[5], label='Agreed')
+    budgetVariationValueHist = ax2.bar(cumulativebin, budgetVariationValue, width=widthDate, color=tableau20[6], label='Budget')
+    submittedVariationValueHist = ax2.bar(cumulativebin2, submittedVariationValue, width=widthDate, color=tableau20[7], label='Submitted')
+
+    # set the y axis label
+    ylabel = u'Value of Variations(\xA3)'
+    ax2.set_ylabel(ylabel, fontsize=14, rotation='vertical')
+
+    # set the x axis label
+    ax2.set_xticks(bins)
+    ax2.set_xticklabels(dates)
+    
+    # add the legend
+    # shrink the axis height by 10% at the bottom
+    box = ax2.get_position()
+    ax2.set_position([box.x0, box.y0 + box.height * 0.1, box.width, box.height * 0.9])
+ 
+    # combine ax1 and ax2 labels
+    lines, labels = ax.get_legend_handles_labels()
+
+    # place the legend below the axis
+    ax2.legend(lines, labels, loc='upper center', fontsize=10, bbox_to_anchor=(0.5, -0.35), fancybox=True, shadow=True, ncol=5) 
+
+    # plot the graph and save
+    # plt.show()
+    plt.savefig((projectNumber[0]+' variations graph.png'), bbox_inches='tight')
+
 
 # call main routine
 main()
