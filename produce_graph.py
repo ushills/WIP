@@ -37,14 +37,18 @@ def importDataSql(searchData, request):
     cur = conn.cursor()
 
     # extract seachdata
+    # reverse sort order newest to oldest
     cur.execute('''
+    SELECT * FROM (
     SELECT ''' + request + ''' 
     FROM wipdata 
     JOIN projectName
     ON wipdata.projectName = projectname.id
     WHERE projectNumber = :projectNumber 
-    ORDER BY wipdate
-    DESC LIMIT :months  
+    AND forecastSaleTotal > 0
+    ORDER BY wipdate DESC 
+    LIMIT :months)
+    ORDER BY wipdate ASC
     ''', {'projectNumber': projectNumber, 'months': months})
 
     all_rows = cur.fetchall()
@@ -119,6 +123,7 @@ def plotForecastGraph(graphData):
     # [(u'2016-01-31', -1355036), (u'2015-12-31', -1354858), 
     for data in graphData:
         dates.append(data[0])
+        print dates
         projectNumber.append(data[1])
         projectName.append(data[2])
         forecastCost.append(data[3]/1000)
@@ -127,7 +132,14 @@ def plotForecastGraph(graphData):
 
     # format the dates in the correct format to show
     dates = [datetime.datetime.strptime(d, '%Y-%m-%d').date() for d in dates]
- 
+
+    # now format to Mon-Year
+    xdate = []
+    for d in dates:
+        xdate.append(d.strftime('%b-%Y'))
+    print xdate 
+    # dates = xdate
+
     # Ensure that the axis ticks only show up on the bottom and left of the plot.  
     # Ticks on the right and top of the plot are generally unnecessary chartjunk.  
     ax.get_xaxis().tick_bottom()  
@@ -250,28 +262,18 @@ def plotVariationGraph(graphData):
     # data is produced in the folllowing format
     # [(u'2016-01-31', -1355036), (u'2015-12-31', -1354858), 
     for data in graphData:
-        dates.append(str(data[0]))
+        dates.append(data[0])
         projectNumber.append(data[1])
         projectName.append(data[2])
         agreedVariationNo.append(data[3])
         budgetVariationNo.append(data[4])
         submittedVariationNo.append(data[5])
-        agreedVariationValue.append(data[6])
-        budgetVariationValue.append(data[7])
-        submittedVariationValue.append(data[8])
+        agreedVariationValue.append(data[6]/1000)
+        budgetVariationValue.append(data[7]/1000)
+        submittedVariationValue.append(data[8]/1000)
 
-    # format the dates in the correct format to show
-    # dates = [datetime.datetime.strptime(d, '%Y-%m-%d').date() for d in dates]
-    dates.reverse()
-    projectNumber.reverse() 
-    projectName.reverse() 
-    agreedVariationNo.reverse() 
-    budgetVariationNo.reverse() 
-    submittedVariationNo.reverse() 
-    agreedVariationValue.reverse() 
-    budgetVariationValue.reverse() 
-    submittedVariationValue.reverse() 
-    print dates
+   
+    # create the bins for the bar chart and set width of bar 
     bins = range(len(dates))
     widthDate = 0.9
  
@@ -288,8 +290,8 @@ def plotVariationGraph(graphData):
 
     # plot the bars
     agreedVariationNoHist = ax.bar(bins, agreedVariationNo, width=widthDate, color=tableau20[5], label='Agreed')
-    submittedVariationNoHist = ax.bar(bins, submittedVariationNo, bottom=agreedVariationNo, width=widthDate, color=tableau20[7], label='Submitted')
-    budgetVariationNoHist = ax.bar(bins, budgetVariationNo, bottom=cumulativeNoHist, width=widthDate, color=tableau20[6], label='Budget')
+    submittedVariationNoHist = ax.bar(bins, submittedVariationNo, bottom=agreedVariationNo, width=widthDate, color=tableau20[15], label='Submitted')
+    budgetVariationNoHist = ax.bar(bins, budgetVariationNo, bottom=cumulativeNoHist, width=widthDate, color=tableau20[11], label='Budget')
 
     # set the y axis label
     ylabel = u'No of Variations'
@@ -316,14 +318,16 @@ def plotVariationGraph(graphData):
             
     # plot the bars
     agreedVariationValueHist = ax2.bar(bins, agreedVariationValue, width=widthDate, color=tableau20[5], label='Agreed')
-    budgetVariationValueHist = ax2.bar(cumulativebin, budgetVariationValue, width=widthDate, color=tableau20[6], label='Budget')
-    submittedVariationValueHist = ax2.bar(cumulativebin2, submittedVariationValue, width=widthDate, color=tableau20[7], label='Submitted')
+    submittedVariationValueHist = ax2.bar(cumulativebin, submittedVariationValue, width=widthDate, color=tableau20[15], label='Submitted')
+    budgetVariationValueHist = ax2.bar(cumulativebin2, budgetVariationValue, width=widthDate, color=tableau20[11], label='Budget')
 
     # set the y axis label
-    ylabel = u'Value of Variations(\xA3)'
+    ylabel = u'Value of Variations\n(\xA3k)'
     ax2.set_ylabel(ylabel, fontsize=14, rotation='vertical')
 
     # set the x axis label
+    # format the dates in the correct format to show
+    dates = [datetime.datetime.strptime(d, '%Y-%m-%d').date() for d in dates]
     ax2.set_xticks(bins)
     ax2.set_xticklabels(dates)
     
