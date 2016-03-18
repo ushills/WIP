@@ -1,10 +1,10 @@
 # produce graph from database
 
-
 # import libraries
 import sqlite3
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+from matplotlib.dates import YearLocator, MonthLocator, DateFormatter
 import datetime
 #import numpy as np
 import re
@@ -82,7 +82,6 @@ def inputProjectNumber():
     return (projectNumber, months)
 
 
-
 # function to produce and output forecast graph
 def plotForecastGraph(graphData):
 
@@ -123,7 +122,6 @@ def plotForecastGraph(graphData):
     # [(u'2016-01-31', -1355036), (u'2015-12-31', -1354858), 
     for data in graphData:
         dates.append(data[0])
-        print dates
         projectNumber.append(data[1])
         projectName.append(data[2])
         forecastCost.append(data[3]/1000)
@@ -132,13 +130,6 @@ def plotForecastGraph(graphData):
 
     # format the dates in the correct format to show
     dates = [datetime.datetime.strptime(d, '%Y-%m-%d').date() for d in dates]
-
-    # now format to Mon-Year
-    xdate = []
-    for d in dates:
-        xdate.append(d.strftime('%b-%Y'))
-    print xdate 
-    # dates = xdate
 
     # Ensure that the axis ticks only show up on the bottom and left of the plot.  
     # Ticks on the right and top of the plot are generally unnecessary chartjunk.  
@@ -162,10 +153,7 @@ def plotForecastGraph(graphData):
     # set the title of the graph
     title =  (projectName[0] + ' (' + projectNumber[0] + ')\n')
     ax.set_title(title, fontsize=16, ha='center')
-
     plt.gcf().autofmt_xdate()
-
-
 
     # create the to-date graph
     # create the lists
@@ -187,6 +175,15 @@ def plotForecastGraph(graphData):
 
     # format the dates in the correct format to show
     dates = [datetime.datetime.strptime(d, '%Y-%m-%d').date() for d in dates]
+
+    # format the x axis date format
+    months = MonthLocator()
+    monthFormat = DateFormatter('%b-%Y')
+    ax3.fmt_xdata = DateFormatter('%b-%Y')
+    ax3.xaxis.set_major_locator(months)
+    ax3.xaxis.set_major_formatter(monthFormat)
+    ax.xaxis.set_major_locator(months)
+    ax.xaxis.set_major_formatter(monthFormat)
  
     # create the axis 
     # ax3 = plt.subplot(212)
@@ -241,9 +238,8 @@ def plotVariationGraph(graphData):
     # You typically want your plot to be ~1.33x wider than tall. This plot is a rare  
     # exception because of the number of lines being plotted on it.  
     # Common sizes: (10, 7.5) and (12, 9)  
-    plt.figure(figsize=(12, 9))
-    # fig = plt.figure() 
     
+    plt.figure(figsize=(12, 9))
     fig, (ax, ax2) = plt.subplots(nrows=2)
 
     # Create the forcast totals graph
@@ -272,10 +268,20 @@ def plotVariationGraph(graphData):
         budgetVariationValue.append(data[7]/1000)
         submittedVariationValue.append(data[8]/1000)
 
-   
+
     # create the bins for the bar chart and set width of bar 
     bins = range(len(dates))
     widthDate = 0.9
+ 
+    # format the dates in the correct format to show
+    dates = [datetime.datetime.strptime(d, '%Y-%m-%d').date() for d in dates]
+    
+    # convert the dates to MMM-YYY
+    xdate = []
+    for d in dates:
+        d = d.strftime('%b-%Y') 
+        xdate.append(d)
+    dates = xdate
  
     # Ensure that the axis ticks only show up on the bottom and left of the plot.  
     # Ticks on the right and top of the plot are generally unnecessary chartjunk.  
@@ -285,7 +291,6 @@ def plotVariationGraph(graphData):
     # plot the data
     # as this is a stacked graph first we need to zip the arrays for the 
     # bottom statement
-
     cumulativeNoHist = [a+b for a,b in zip(agreedVariationNo, submittedVariationNo)]
 
     # plot the bars
@@ -300,9 +305,6 @@ def plotVariationGraph(graphData):
     # set the title of the graph
     title =  (projectName[0] + ' (' + projectNumber[0] + ')\n')
     ax.set_title(title, fontsize=16, ha='center')
-
-    plt.gcf().autofmt_xdate()
-
 
 
     # Ensure that the axis ticks only show up on the bottom and left of the plot.  
@@ -326,10 +328,9 @@ def plotVariationGraph(graphData):
     ax2.set_ylabel(ylabel, fontsize=14, rotation='vertical')
 
     # set the x axis label
-    # format the dates in the correct format to show
-    dates = [datetime.datetime.strptime(d, '%Y-%m-%d').date() for d in dates]
-    ax2.set_xticks(bins)
+    ax2.set_xticks(cumulativebin)
     ax2.set_xticklabels(dates)
+    plt.gcf().autofmt_xdate()
     
     # add the legend
     # shrink the axis height by 10% at the bottom
