@@ -290,7 +290,7 @@ def exportDataSql(dataList):
 
     
     # run through the data and allocate to each field
-    cur.executemany('''INSERT OR IGNORE INTO wipdata
+    cur.executemany('''INSERT OR REPLACE INTO wipdata
     (projectNumber, projectName, wipDate, agreedVariationsNo,
     budgetVariationsNo, submittedVariationsNo, variationsNoTotal,
     orderValue, agreedVariationsValue, budgetVariationsValue,
