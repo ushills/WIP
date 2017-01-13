@@ -12,7 +12,7 @@ import re
 def main():
     plotGraphs()
 
-
+# function to plot graphs - primary function
 def plotGraphs():
 
     monthsToPlot = '12'
@@ -24,6 +24,8 @@ def plotGraphs():
     projectList = recentProjectList(recentWipDate)
 
     # iterate through the projectList and plot graphs to each project
+    sucessful = 0
+    failed = 0
     for project in projectList:
         try:
             searchData = (project, monthsToPlot)
@@ -39,14 +41,21 @@ def plotGraphs():
             graphData = importDataSql(searchData, request)
             plotVariationGraph(graphData)
 
-            print 'ploted graphs for', searchData[0]
-            print '-' * 25
+            # print 'ploted graphs for', searchData[0]
+            # print '-' * 25
+            sucessful += 1
 
         except:
             print 'skipping', searchData[0], 'data incorrect'
             print '-' * 25
+            failed += 1
             continue
 
+    print 'printed', sucessful, 'project graphs'
+    if failed > 0:
+        print failed, 'projects failed to print'
+
+# function to extract date of most recent wip in database
 def mostRecentWip():
 
     # connect to the datebase
@@ -63,6 +72,7 @@ def mostRecentWip():
 
     return latestDate
 
+# function to extract list of most recent wips
 def recentProjectList(searchDate):
     projects = []
     projectList = []
@@ -141,7 +151,6 @@ def inputProjectNumber():
             break
 
     return (projectNumber, months)
-
 
 # function to produce and output forecast graph
 def plotForecastGraph(graphData):
