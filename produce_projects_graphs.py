@@ -12,6 +12,7 @@ import re
 # set database name
 DATABASE_NAME = 'wipdatadb.sqlite'
 
+
 # main routine
 def main():
     plotGraphs()
@@ -37,12 +38,17 @@ def plotGraphs():
             # print 'plotting graphs for', searchData[0]
 
             # plot the Forecast Data graph
-            request = "wipdate, projectNumber, projectname.name, forecastCostTotal, forecastSaleTotal, forecastMarginTotal, currentCost, totalCertified"
+            request = "wipdate, projectNumber, projectname.name, \
+                       forecastCostTotal, forecastSaleTotal, \
+                       forecastMarginTotal, currentCost, totalCertified"
             graphData = importDataSql(searchData, request)
             plotForecastGraph(graphData)
 
             # plot the variation histogram
-            request = "wipdate, projectNumber, projectname.name, agreedVariationsNo, budgetVariationsNo, submittedVariationsNo, agreedVariationsValue, budgetVariationsValue, submittedVariationsValue"
+            request = "wipdate, projectNumber, projectname.name, \
+                       agreedVariationsNo, budgetVariationsNo, \
+                       submittedVariationsNo, agreedVariationsValue, \
+                       budgetVariationsValue, submittedVariationsValue"
             graphData = importDataSql(searchData, request)
             plotVariationGraph(graphData)
 
@@ -225,19 +231,26 @@ def plotForecastGraph(graphData):
     ax2.get_yaxis().tick_right()
 
     # plot the data
-    forecastSaleLine = ax.plot(dates, forecastSale, lw=2.5,
-                               color=tableau20[5], label='Forecast Sale')
-    forecastCostLine = ax.plot(dates, forecastCost, lw=2.5,
-                               color=tableau20[0], label='Forecast Cost')
-    forecastContributionLine = ax2.plot(dates, forecastContribution,
-                                        lw=2.5, color=tableau20[2],
-                                        label='Contribution')
+    forecastSaleLine = ax.plot(
+        dates, forecastSale, lw=2.5,
+        color=tableau20[5], label='Forecast Sale')
+
+    forecastCostLine = ax.plot(
+        dates, forecastCost, lw=2.5,
+        color=tableau20[0], label='Forecast Cost')
+
+    forecastContributionLine = ax2.plot(
+        dates, forecastContribution,
+        lw=2.5, color=tableau20[2],
+        label='Contribution')
 
     # set the y axis label
     ylabel = u'\xA3k'
     ax.set_ylabel(ylabel, fontsize=14, rotation='vertical')
-    ax2.set_ylabel(ylabel, fontsize=14, rotation='vertical',
-                   color=tableau20[2])
+    ax2.set_ylabel(
+        ylabel, fontsize=14, rotation='vertical',
+        color=tableau20[2])
+
     for tl in ax2.get_yticklabels():
         tl.set_color(tableau20[2])
 
@@ -287,10 +300,12 @@ def plotForecastGraph(graphData):
     ax3.get_yaxis().tick_left()
 
     # plot the data
-    currentCostline = ax3.plot(dates, currentCost, lw=2.5,
-                               color=tableau20[11], label='Cost')
-    totalCertifiedline = ax3.plot(dates, totalCertified, lw=2.5,
-                                  color=tableau20[6], label='Certified')
+    currentCostline = ax3.plot(
+        dates, currentCost, lw=2.5,
+        color=tableau20[11], label='Cost')
+    totalCertifiedline = ax3.plot(
+        dates, totalCertified, lw=2.5,
+        color=tableau20[6], label='Certified')
 
     # set the y axis label
     ylabel = u'\xA3k'
@@ -309,14 +324,16 @@ def plotForecastGraph(graphData):
     lines3, labels3 = ax3.get_legend_handles_labels()
 
     # place the legend below the axis
-    ax3.legend(lines + lines2 + lines3, labels + labels2 + labels3,
-               loc='upper center', fontsize=10, bbox_to_anchor=(0.5, -0.35),
-               fancybox=True, shadow=True, ncol=5)
+    ax3.legend(
+        lines + lines2 + lines3, labels + labels2 + labels3,
+        loc='upper center', fontsize=10, bbox_to_anchor=(0.5, -0.35),
+        fancybox=True, shadow=True, ncol=5)
 
     # plot the graph and save
     # plt.show()
-    plt.savefig((projectNumber[0]+' forecast totals graph.png'),
-                bbox_inches='tight')
+    plt.savefig(
+        (projectNumber[0]+' forecast totals graph.png'),
+        bbox_inches='tight')
     plt.close('all')
 
 
@@ -405,9 +422,11 @@ def plotVariationGraph(graphData):
     agreedVariationNoHist = ax.bar(
         bins, agreedVariationNo, width=widthDate,
         color=tableau20[5], label='Agreed')
+
     submittedVariationNoHist = ax.bar(
         bins, submittedVariationNo, bottom=agreedVariationNo,
         width=widthDate, color=tableau20[15], label='Submitted')
+
     budgetVariationNoHist = ax.bar(
         bins, budgetVariationNo, bottom=cumulativeNoHist,
         width=widthDate, color=tableau20[11], label='Budget')
@@ -437,9 +456,11 @@ def plotVariationGraph(graphData):
     agreedVariationValueHist = ax2.bar(
         bins, agreedVariationValue, width=widthDate,
         color=tableau20[5], label='Agreed')
+
     submittedVariationValueHist = ax2.bar(
         cumulativebin, submittedVariationValue, width=widthDate,
         color=tableau20[15], label='Submitted')
+
     budgetVariationValueHist = ax2.bar(
         cumulativebin2, budgetVariationValue, width=widthDate,
         color=tableau20[11], label='Budget')

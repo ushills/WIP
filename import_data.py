@@ -13,12 +13,13 @@ DATABASE_NAME = 'wipdatadb.sqlite'
 
 # declare WIP excel file name here, although we will create a list later
 directory = r'H:\Previous Months WIPS'
-#directory = r'/home/ian/ownCloud/IESL/WIP'
-#directory = r'U:\WIP'
+# directory = r'/home/ian/ownCloud/IESL/WIP'
+# directory = r'U:\WIP'
 
 # get directory name as input
 inp = raw_input('Enter directory to import: ')
 directory = str(inp)
+
 
 # main routine
 def main():
@@ -41,14 +42,15 @@ def listFiles(directory):
     filelist = []
     for root, directories, filenames in os.walk(directory):
         for filename in filenames:
-            rawfilename = str(os.path.join(root,filename))
-            #print rawfilename
+            rawfilename = str(os.path.join(root, filename))
+            # print rawfilename
             # check if the file is excel, i.e. ends .xlsx
             if re.search(r"(.*).xlsx", rawfilename):
-                #print 'Appending', rawfilename
+                # print 'Appending', rawfilename
                 filelist.append(rawfilename)
     print 'found', len(filelist), 'files'
     return filelist
+
 
 # now check that the excel file is a wip file
 def checkWipfile(filelist):
@@ -61,19 +63,21 @@ def checkWipfile(filelist):
     for excelfile in filelist:
         # Try to open the WIP excel file
         try:
-            wipWorkbook = load_workbook(filename=excelfile, read_only=True, data_only=True)
+            wipWorkbook = load_workbook(
+                filename=excelfile, read_only=True,
+                data_only=True)
             # and try to open the worksheet
             wipWorksheet = wipWorkbook[worksheetName]
-            #print 'checking file', excelfile
+            # print 'checking file', excelfile
         except:
-            #print excelfile, 'is not a wip file'
+            # print excelfile, 'is not a wip file'
             continue
         if (wipWorksheet[projectNameCell].value) != 'Project Name:':
-            #print excelfile, 'is not a wip file'
+            # print excelfile, 'is not a wip file'
             continue
         else:
             filteredfilelist.append(excelfile)
-            #print 'adding', excelfile, 'to wipfile list'
+            # print 'adding', excelfile, 'to wipfile list'
     print 'filtered', len(filelist), 'files to', len(filteredfilelist), 'files'
     return filteredfilelist
 
@@ -140,7 +144,9 @@ def importData(wipfilename):
 
     # Try to open the WIP excel file
     try:
-        wipWorkbook = load_workbook(filename=wipfilename, read_only=True, data_only=True)
+        wipWorkbook = load_workbook(
+            filename=wipfilename, read_only=True,
+            data_only=True)
         # and try to open the worksheet
         wipWorksheet = wipWorkbook[worksheetName]
         print 'Opening workbook', worksheetName, 'in', wipfilename
@@ -155,7 +161,7 @@ def importData(wipfilename):
     wipData['wipDate'] = str(wipWorksheet[wipDateRef].value)
     wipData['wipDate'] = (wipData['wipDate'].rsplit(' '))[0]
     wipDateFormatted = wipData['wipDate']
-    print 'Extracting', wipData['projectNumber'], '-', wipData['projectName'], 'data for', wipDateFormatted,'\n'
+    print 'Extracting', wipData['projectNumber'], '-', wipData['projectName'], 'data for', wipDateFormatted, '\n'
 
     # extract variation information
     wipData['agreedVariationsNo'] = int(wipWorksheet[agreedVariationsNoRef].value)
@@ -166,7 +172,7 @@ def importData(wipfilename):
     # check variations no balance
     if wipData['variationsNoTotal'] != variationsNoTotalCheck:
         print 'Number of variations incorrect'
-        quit ()
+        quit()
     else:
         print 'Variations.....okay'
 
@@ -224,7 +230,6 @@ def importData(wipfilename):
     else:
         print 'Forecast margin.....okay'
 
-
     # extract cash information
     try:
         wipData['latestApplication'] = int(wipWorksheet[latestApplicationRef].value)
@@ -238,9 +243,10 @@ def importData(wipfilename):
     print 'All data imported sucessfully\n'
     return wipData
 
-#function to import data into an SQL database
+
+# function to import data into an SQL database
 def exportDataSql(dataList):
-    #print dataList
+    # print dataList
     projectName = dataList['projectName']
     wipDate = dataList['wipDate']
     conn = sqlite3.connect(DATABASE_NAME)
@@ -277,7 +283,6 @@ def exportDataSql(dataList):
     projectName_id = cur.fetchone()[0]
     dataList['projectName'] = projectName_id
 
-
     # run through the data and allocate to each field
     cur.executemany('''INSERT OR REPLACE INTO wipdata
     (projectNumber, projectName, wipDate, agreedVariationsNo,
@@ -304,7 +309,6 @@ def exportDataSql(dataList):
     conn.commit()
     cur.close()
     conn.close()
-
 
 
 # Call main routine
