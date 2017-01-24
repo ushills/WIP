@@ -9,6 +9,8 @@ from matplotlib.dates import YearLocator, MonthLocator, DateFormatter
 import datetime
 import re
 
+# set database name
+DATABASE_NAME = 'wipdatadb.sqlite'
 
 # main routine
 def main():
@@ -63,7 +65,7 @@ def plotGraphs():
 def mostRecentWip():
 
     # connect to the datebase
-    conn = sqlite3.connect('wipdatadb.sqlite')
+    conn = sqlite3.connect(DATABASE_NAME)
     cur = conn.cursor()
 
     # extract the most recent wipdate
@@ -83,7 +85,7 @@ def recentProjectList(searchDate):
     projectList = []
 
     # connect to the database
-    conn = sqlite3.connect('wipdatadb.sqlite')
+    conn = sqlite3.connect(DATABASE_NAME)
     cur = conn.cursor()
 
     # extract the list of most recent wips using the searchDate
@@ -110,7 +112,7 @@ def importDataSql(searchData, request):
     # split out searchData and connect to database
     projectNumber = searchData[0]
     months = searchData[1]
-    conn = sqlite3.connect('wipdatadb.sqlite')
+    conn = sqlite3.connect(DATABASE_NAME)
     cur = conn.cursor()
 
     # extract seachdata

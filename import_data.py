@@ -1,6 +1,6 @@
 # import WIP data from WIP file
 
-# import libraries 
+# import libraries
 from openpyxl import load_workbook
 import time
 import datetime
@@ -8,19 +8,8 @@ import sqlite3
 import os
 import re
 
-# import GUI libraries
-import _tkinter as tk
-#from Tkinter import tkFileDialog
-#from Tkinter import messagebox
-#from Tkinter.simpledialog import askstring
-
-# remove tkinter window
-#root = tk.Tk()
-#root.withdraw()
-
-# supress warnings
-import warnings 
-warnings.filterwarnings("ignore")
+# set database name
+DATABASE_NAME = 'wipdatadb.sqlite'
 
 # declare WIP excel file name here, although we will create a list later
 directory = r'H:\Previous Months WIPS'
@@ -53,7 +42,7 @@ def listFiles(directory):
     for root, directories, filenames in os.walk(directory):
         for filename in filenames:
             rawfilename = str(os.path.join(root,filename))
-            #print rawfilename 
+            #print rawfilename
             # check if the file is excel, i.e. ends .xlsx
             if re.search(r"(.*).xlsx", rawfilename):
                 #print 'Appending', rawfilename
@@ -78,7 +67,7 @@ def checkWipfile(filelist):
             #print 'checking file', excelfile
         except:
             #print excelfile, 'is not a wip file'
-            continue 
+            continue
         if (wipWorksheet[projectNameCell].value) != 'Project Name:':
             #print excelfile, 'is not a wip file'
             continue
@@ -145,7 +134,7 @@ def importData(wipfilename):
 
     # cash recovery variables
     latestApplicationRef = (thisMonthColumn + '67')
-    totalCertifiedRef = (thisMonthColumn + '72') 
+    totalCertifiedRef = (thisMonthColumn + '72')
 
     # Extract the data from the WIP excel spreadsheet and set variables
 
@@ -162,9 +151,9 @@ def importData(wipfilename):
     # extract the cell information
     # using the format wipData['field'] = wipWorksheet([fieldRef].value)
     wipData['projectName'] = (wipWorksheet[projectNameRef].value)
-    wipData['projectNumber'] = (wipWorksheet[projectNumberRef].value) 
+    wipData['projectNumber'] = (wipWorksheet[projectNumberRef].value)
     wipData['wipDate'] = str(wipWorksheet[wipDateRef].value)
-    wipData['wipDate'] = (wipData['wipDate'].rsplit(' '))[0] 
+    wipData['wipDate'] = (wipData['wipDate'].rsplit(' '))[0]
     wipDateFormatted = wipData['wipDate']
     print 'Extracting', wipData['projectNumber'], '-', wipData['projectName'], 'data for', wipDateFormatted,'\n'
 
@@ -247,19 +236,19 @@ def importData(wipfilename):
         wipData['totalCertified'] = 0
 
     print 'All data imported sucessfully\n'
-    return wipData 
+    return wipData
 
 #function to import data into an SQL database
 def exportDataSql(dataList):
     #print dataList
     projectName = dataList['projectName']
     wipDate = dataList['wipDate']
-    conn = sqlite3.connect('wipdatadb.sqlite')
+    conn = sqlite3.connect(DATABASE_NAME)
     cur = conn.cursor()
 
     # delete the database table if it exists...for testing only
     # cur.execute('''DROP TABLE IF EXISTS wipdata''')
-    
+
     # create job name table
     cur.execute('''
     CREATE TABLE IF NOT EXISTS projectname (
@@ -277,7 +266,7 @@ def exportDataSql(dataList):
     reserveBudget INTEGER, reserveSubmitted INTEGER, contracharges INTEGER,
     forecastSaleTotal INTEGER, currentCost INTEGER, costToComplete INTEGER,
     defectProvision INTEGER, forecastCostTotal INTEGER, contractContribution INTEGER,
-    bettermentsRisks INTEGER, managersView INTEGER, forecastMarginTotal INTEGER, 
+    bettermentsRisks INTEGER, managersView INTEGER, forecastMarginTotal INTEGER,
     latestApplication INTEGER, totalCertified INTEGER,
     PRIMARY KEY (projectNumber, wipDate));''')
 
@@ -288,7 +277,7 @@ def exportDataSql(dataList):
     projectName_id = cur.fetchone()[0]
     dataList['projectName'] = projectName_id
 
-    
+
     # run through the data and allocate to each field
     cur.executemany('''INSERT OR REPLACE INTO wipdata
     (projectNumber, projectName, wipDate, agreedVariationsNo,
@@ -315,10 +304,8 @@ def exportDataSql(dataList):
     conn.commit()
     cur.close()
     conn.close()
-    
-    
-    
+
+
+
 # Call main routine
 main()
-
-
