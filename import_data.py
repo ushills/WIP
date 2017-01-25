@@ -165,14 +165,21 @@ def importData(wipfilename):
     wipData['wipDate'] = str(wipWorksheet[wipDateRef].value)
     wipData['wipDate'] = (wipData['wipDate'].rsplit(' '))[0]
     wipDateFormatted = wipData['wipDate']
-    print 'Extracting', wipData['projectNumber'], '-', wipData['projectName'], 'data for', wipDateFormatted, '\n'
+    print 'Extracting', wipData['projectNumber'], '-', \
+        wipData['projectName'], 'data for', wipDateFormatted, '\n'
 
     # extract variation information
-    wipData['agreedVariationsNo'] = int(wipWorksheet[agreedVariationsNoRef].value)
-    wipData['budgetVariationsNo'] = int(wipWorksheet[budgetVariationsNoRef].value)
-    wipData['submittedVariationsNo'] = int(wipWorksheet[submittedVariationsNoRef].value)
-    wipData['variationsNoTotal'] = int(wipWorksheet[variationsNoTotalRef].value)
-    variationsNoTotalCheck = wipData['agreedVariationsNo'] + wipData['budgetVariationsNo'] + wipData['submittedVariationsNo']
+    wipData['agreedVariationsNo'] = \
+        int(wipWorksheet[agreedVariationsNoRef].value)
+    wipData['budgetVariationsNo'] = \
+        int(wipWorksheet[budgetVariationsNoRef].value)
+    wipData['submittedVariationsNo'] = \
+        int(wipWorksheet[submittedVariationsNoRef].value)
+    wipData['variationsNoTotal'] = \
+        int(wipWorksheet[variationsNoTotalRef].value)
+    variationsNoTotalCheck = wipData['agreedVariationsNo'] \
+                             + wipData['budgetVariationsNo'] \
+                             + wipData['submittedVariationsNo']
     # check variations no balance
     if wipData['variationsNoTotal'] != variationsNoTotalCheck:
         print 'Number of variations incorrect'
@@ -182,11 +189,17 @@ def importData(wipfilename):
 
     # extract sales information
     wipData['orderValue'] = int(wipWorksheet[orderValueRef].value)
-    wipData['agreedVariationsValue'] = int(wipWorksheet[agreedVariationsValueRef].value)
-    wipData['budgetVariationsValue'] = int(wipWorksheet[budgetVariationsValueRef].value)
-    wipData['submittedVariationsValue'] = int(wipWorksheet[submittedVariationsValueRef].value)
+    wipData['agreedVariationsValue'] = \
+        int(wipWorksheet[agreedVariationsValueRef].value)
+    wipData['budgetVariationsValue'] = \
+        int(wipWorksheet[budgetVariationsValueRef].value)
+    wipData['submittedVariationsValue'] = \
+        int(wipWorksheet[submittedVariationsValueRef].value)
     wipData['saleSubtotal'] = int(wipWorksheet[saleSubtotalRef].value)
-    saleSubtotalCheck = wipData['orderValue'] + wipData['agreedVariationsValue'] + wipData['budgetVariationsValue'] + wipData['submittedVariationsValue']
+    saleSubtotalCheck = wipData['orderValue'] \
+                        + wipData['agreedVariationsValue'] \
+                        + wipData['budgetVariationsValue'] \
+                        + wipData['submittedVariationsValue']
     # check sales values balance
     if abs(saleSubtotalCheck - wipData['saleSubtotal']) > 5:
         print 'Sales value incorrect'
@@ -200,7 +213,14 @@ def importData(wipfilename):
     wipData['reserveSubmitted'] = int(wipWorksheet[reserveSubmittedRef].value)
     wipData['contracharges'] = int(wipWorksheet[contrachargesRef].value)
     wipData['forecastSaleTotal'] = int(wipWorksheet[forecastSaleTotalRef].value)
-    sumChecksale = wipData['orderValue'] + wipData['agreedVariationsValue'] + wipData['budgetVariationsValue'] + wipData['submittedVariationsValue'] + wipData['reserveAgreed'] + wipData['reserveBudget'] + wipData['reserveSubmitted'] + wipData['contracharges']
+    sumChecksale = wipData['orderValue'] \
+                   + wipData['agreedVariationsValue'] \
+                   + wipData['budgetVariationsValue'] \
+                   + wipData['submittedVariationsValue'] \
+                   + wipData['reserveAgreed'] \
+                   + wipData['reserveBudget'] \
+                   + wipData['reserveSubmitted'] \
+                   + wipData['contracharges']
     if abs(sumChecksale - wipData['forecastSaleTotal']) > 5:
         print 'Forecast sale subtotal incorrect'
         quit()
@@ -212,7 +232,9 @@ def importData(wipfilename):
     wipData['costToComplete'] = int(wipWorksheet[costToCompleteRef].value)
     wipData['defectProvision'] = int(wipWorksheet[defectProvisionRef].value)
     wipData['forecastCostTotal'] = int(wipWorksheet[forecastCostTotalRef].value)
-    sumCheckcost = wipData['currentCost'] + wipData['costToComplete'] + wipData['defectProvision']
+    sumCheckcost = wipData['currentCost'] \
+                   + wipData['costToComplete'] \
+                   + wipData['defectProvision']
     if abs(sumCheckcost - wipData['forecastCostTotal']) > 5:
         print 'Forecast cost subtotal incorrect'
         quit()
@@ -220,14 +242,22 @@ def importData(wipfilename):
         print 'Forecast cost.....okay'
 
     # extract margin information
-    wipData['contractContribution'] = int(wipWorksheet[contractContributionRef].value)
+    wipData['contractContribution'] = \
+        int(wipWorksheet[contractContributionRef].value)
     wipData['bettermentsRisks'] = int(wipWorksheet[bettermentsRisksRef].value)
+
+    # check if the managersView is blank and would cause an error
+    # if true add a 0
     try:
         wipData['managersView'] = int(wipWorksheet[managersViewRef].value)
     except:
         wipData['managersView'] = 0
-    wipData['forecastMarginTotal'] = int(wipWorksheet[forecastMarginTotalRef].value)
-    sumCheckmargin = wipData['contractContribution'] + wipData['bettermentsRisks'] + wipData['managersView']
+
+    wipData['forecastMarginTotal'] = \
+        int(wipWorksheet[forecastMarginTotalRef].value)
+    sumCheckmargin = wipData['contractContribution'] \
+                     + wipData['bettermentsRisks'] \
+                     + wipData['managersView']
     if abs(sumCheckmargin - wipData['forecastMarginTotal']) > 5:
         print 'Forecast margin subtotal incorrect'
         quit()
@@ -235,8 +265,10 @@ def importData(wipfilename):
         print 'Forecast margin.....okay'
 
     # extract cash information
+    # if the field is blank insert a 0
     try:
-        wipData['latestApplication'] = int(wipWorksheet[latestApplicationRef].value)
+        wipData['latestApplication'] = \
+            int(wipWorksheet[latestApplicationRef].value)
     except:
         wipData['latestApplication'] = 0
     try:
@@ -261,53 +293,56 @@ def exportDataSql(dataList):
 
     # create job name table
     cur.execute('''
-    CREATE TABLE IF NOT EXISTS projectname (
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-    name TEXT UNIQUE
-    )''')
+        CREATE TABLE IF NOT EXISTS projectname (
+        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+        name TEXT UNIQUE
+        )''')
 
     # create wipdata table if doesn't exist
     cur.execute('''
     CREATE TABLE IF NOT EXISTS wipdata (
-    projectNumber TEXT, projectName INTEGER, wipDate TEXT, agreedVariationsNo INTEGER,
-    budgetVariationsNo INTEGER, submittedVariationsNo INTEGER, variationsNoTotal INTEGER,
-    orderValue INTEGER, agreedVariationsValue INTEGER, budgetVariationsValue INTEGER,
-    submittedVariationsValue INTEGER, saleSubtotal INTEGER, reserveAgreed INTEGER,
-    reserveBudget INTEGER, reserveSubmitted INTEGER, contracharges INTEGER,
-    forecastSaleTotal INTEGER, currentCost INTEGER, costToComplete INTEGER,
-    defectProvision INTEGER, forecastCostTotal INTEGER, contractContribution INTEGER,
-    bettermentsRisks INTEGER, managersView INTEGER, forecastMarginTotal INTEGER,
-    latestApplication INTEGER, totalCertified INTEGER,
-    PRIMARY KEY (projectNumber, wipDate));''')
+        projectNumber TEXT, projectName INTEGER, wipDate TEXT,
+        agreedVariationsNo INTEGER, budgetVariationsNo INTEGER,
+        submittedVariationsNo INTEGER, variationsNoTotal INTEGER,
+        orderValue INTEGER, agreedVariationsValue INTEGER,
+        budgetVariationsValue INTEGER, submittedVariationsValue INTEGER,
+        saleSubtotal INTEGER, reserveAgreed INTEGER, reserveBudget INTEGER,
+        reserveSubmitted INTEGER, contracharges INTEGER,
+        forecastSaleTotal INTEGER, currentCost INTEGER, costToComplete INTEGER,
+        defectProvision INTEGER, forecastCostTotal INTEGER,
+        contractContribution INTEGER, bettermentsRisks INTEGER,
+        managersView INTEGER, forecastMarginTotal INTEGER,
+        latestApplication INTEGER, totalCertified INTEGER,
+        PRIMARY KEY (projectNumber, wipDate));''')
 
     # check if the project name exists in the table project name
     cur.execute('''INSERT OR IGNORE INTO projectname (name)
-    VALUES ( ? )''', (projectName, ))
+        VALUES ( ? )''', (projectName, ))
     cur.execute('SELECT id FROM projectname WHERE name = ?', (projectName, ))
     projectName_id = cur.fetchone()[0]
     dataList['projectName'] = projectName_id
 
     # run through the data and allocate to each field
     cur.executemany('''INSERT OR REPLACE INTO wipdata
-    (projectNumber, projectName, wipDate, agreedVariationsNo,
-    budgetVariationsNo, submittedVariationsNo, variationsNoTotal,
-    orderValue, agreedVariationsValue, budgetVariationsValue,
-    submittedVariationsValue, saleSubtotal, reserveAgreed,
-    reserveBudget, reserveSubmitted, contracharges,
-    forecastSaleTotal, currentCost, costToComplete,
-    defectProvision, forecastCostTotal, contractContribution,
-    bettermentsRisks, managersView, forecastMarginTotal,
-    latestApplication, totalCertified)
+        (projectNumber, projectName, wipDate, agreedVariationsNo,
+        budgetVariationsNo, submittedVariationsNo, variationsNoTotal,
+        orderValue, agreedVariationsValue, budgetVariationsValue,
+        submittedVariationsValue, saleSubtotal, reserveAgreed,
+        reserveBudget, reserveSubmitted, contracharges,
+        forecastSaleTotal, currentCost, costToComplete,
+        defectProvision, forecastCostTotal, contractContribution,
+        bettermentsRisks, managersView, forecastMarginTotal,
+        latestApplication, totalCertified)
     VALUES
-    (:projectNumber, :projectName, :wipDate, :agreedVariationsNo,
-    :budgetVariationsNo, :submittedVariationsNo, :variationsNoTotal,
-    :orderValue, :agreedVariationsValue, :budgetVariationsValue,
-    :submittedVariationsValue, :saleSubtotal, :reserveAgreed,
-    :reserveBudget, :reserveSubmitted, :contracharges,
-    :forecastSaleTotal, :currentCost, :costToComplete,
-    :defectProvision, :forecastCostTotal, :contractContribution,
-    :bettermentsRisks, :managersView, :forecastMarginTotal,
-    :latestApplication, :totalCertified)''', [dataList])
+        (:projectNumber, :projectName, :wipDate, :agreedVariationsNo,
+        :budgetVariationsNo, :submittedVariationsNo, :variationsNoTotal,
+        :orderValue, :agreedVariationsValue, :budgetVariationsValue,
+        :submittedVariationsValue, :saleSubtotal, :reserveAgreed,
+        :reserveBudget, :reserveSubmitted, :contracharges,
+        :forecastSaleTotal, :currentCost, :costToComplete,
+        :defectProvision, :forecastCostTotal, :contractContribution,
+        :bettermentsRisks, :managersView, :forecastMarginTotal,
+        :latestApplication, :totalCertified)''', [dataList])
 
     # Commit the changes to the database
     conn.commit()
