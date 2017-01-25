@@ -8,6 +8,10 @@ import sqlite3
 import os
 import re
 
+# supress warnings
+import warnings
+warnings.filterwarnings("ignore")
+
 # set database name
 DATABASE_NAME = 'wipdatadb.sqlite'
 
