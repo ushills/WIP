@@ -8,6 +8,7 @@ import matplotlib.dates as mdates
 from matplotlib.dates import YearLocator, MonthLocator, DateFormatter
 import datetime
 import re
+import os
 
 # set database name
 # DATABASE_NAME = 'wipdatadb.sqlite'
@@ -17,7 +18,7 @@ import re
 def printgraphs(DBNAME, directory):
     global DATABASE_NAME
     global outputdirectory
-    DATABASE_NAME = DBNAME
+    DATABASE_NAME = (DBNAME)
     outputdirectory = directory
     plotGraphs()
 
@@ -75,7 +76,7 @@ def plotGraphs():
 def mostRecentWip():
 
     # connect to the datebase
-    conn = sqlite3.connect(DATABASE_NAME)
+    conn = sqlite3.connect(os.path.normpath(DATABASE_NAME))
     cur = conn.cursor()
 
     # extract the most recent wipdate
@@ -95,7 +96,7 @@ def recentProjectList(searchDate):
     projectList = []
 
     # connect to the database
-    conn = sqlite3.connect(DATABASE_NAME)
+    conn = sqlite3.connect(os.path.normpath(DATABASE_NAME))
     cur = conn.cursor()
 
     # extract the list of most recent wips using the searchDate
@@ -122,7 +123,7 @@ def importDataSql(searchData, request):
     # split out searchData and connect to database
     projectNumber = searchData[0]
     months = searchData[1]
-    conn = sqlite3.connect(DATABASE_NAME)
+    conn = sqlite3.connect(os.path.normpath(DATABASE_NAME))
     cur = conn.cursor()
 
     # extract seachdata
@@ -336,7 +337,7 @@ def plotForecastGraph(graphData):
     # plot the graph and save
     # plt.show()
     plt.savefig(
-        (outputdirectory + projectNumber[0] + ' forecast totals graph.png'),
+        os.path.normpath(outputdirectory + projectNumber[0] + ' forecast totals graph.png'),
         bbox_inches='tight')
     plt.close('all')
 
@@ -497,7 +498,7 @@ def plotVariationGraph(graphData):
     # plot the graph and save
     # plt.show()
     plt.savefig(
-        (outputdirectory + projectNumber[0]+' variations graph.png'),
+        os.path.normpath(outputdirectory + projectNumber[0]+' variations graph.png'),
         bbox_inches='tight')
     plt.close('all')
 

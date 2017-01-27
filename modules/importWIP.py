@@ -12,20 +12,8 @@ import re
 import warnings
 warnings.filterwarnings("ignore")
 
-# set database name
-# DATABASE_NAME = 'wipdatadb.sqlite'
-
-# declare WIP excel file name here, although we will create a list later
-# directory = r'H:\Previous Months WIPS'
-# directory = r'/home/ian/ownCloud/IESL/WIP'
-# directory = r'U:\WIP'
-
-# get directory name as input
-# inp = raw_input('Enter directory to import: ')
-# directory = str(inp)
-
-
-# main routine
+# importWIPdata takes information in the form
+# importWIPdata(DATABASE_NAME, importdirectory)
 def importWIPdata(DBNAME, directoryname):
     global DATABASE_NAME
     global directory
@@ -34,7 +22,7 @@ def importWIPdata(DBNAME, directoryname):
     print 'importing from', directoryname, 'to', DBNAME
 
     # first extract the files from the directory
-    filelist = listFiles(directory)
+    filelist = listFiles(os.path.normpath(directory))
 
     # check the files are wip files
     wipfiles = checkWipfile(filelist)
@@ -50,7 +38,7 @@ def importWIPdata(DBNAME, directoryname):
 def listFiles(directory):
     print 'searching for files.....'
     filelist = []
-    for root, directories, filenames in os.walk(directory):
+    for root, directories, filenames in os.walk(os.path.normpath(directory)):
         for filename in filenames:
             rawfilename = str(os.path.join(root, filename))
             # print rawfilename
@@ -291,7 +279,7 @@ def exportDataSql(dataList):
     # print dataList
     projectName = dataList['projectName']
     wipDate = dataList['wipDate']
-    conn = sqlite3.connect(DATABASE_NAME)
+    conn = sqlite3.connect(os.path.normpath(DATABASE_NAME))
     cur = conn.cursor()
 
     # delete the database table if it exists...for testing only
