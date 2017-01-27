@@ -10,11 +10,15 @@ import datetime
 import re
 
 # set database name
-DATABASE_NAME = 'wipdatadb.sqlite'
+# DATABASE_NAME = 'wipdatadb.sqlite'
 
 
 # main routine
-def main():
+def printgraphs(DBNAME, directory):
+    global DATABASE_NAME
+    global outputdirectory
+    DATABASE_NAME = DBNAME
+    outputdirectory = directory
     plotGraphs()
 
 
@@ -332,7 +336,7 @@ def plotForecastGraph(graphData):
     # plot the graph and save
     # plt.show()
     plt.savefig(
-        (projectNumber[0]+' forecast totals graph.png'),
+        (outputdirectory + projectNumber[0] + ' forecast totals graph.png'),
         bbox_inches='tight')
     plt.close('all')
 
@@ -493,9 +497,9 @@ def plotVariationGraph(graphData):
     # plot the graph and save
     # plt.show()
     plt.savefig(
-        (projectNumber[0]+' variations graph.png'),
+        (outputdirectory + projectNumber[0]+' variations graph.png'),
         bbox_inches='tight')
     plt.close('all')
 
 # call main routine
-main()
+# main()

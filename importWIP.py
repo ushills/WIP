@@ -13,20 +13,26 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # set database name
-DATABASE_NAME = 'wipdatadb.sqlite'
+# DATABASE_NAME = 'wipdatadb.sqlite'
 
 # declare WIP excel file name here, although we will create a list later
-directory = r'H:\Previous Months WIPS'
+# directory = r'H:\Previous Months WIPS'
 # directory = r'/home/ian/ownCloud/IESL/WIP'
 # directory = r'U:\WIP'
 
 # get directory name as input
-inp = raw_input('Enter directory to import: ')
-directory = str(inp)
+# inp = raw_input('Enter directory to import: ')
+# directory = str(inp)
 
 
 # main routine
-def main():
+def importWIPdata(DBNAME, directoryname):
+    global DATABASE_NAME
+    global directory
+    DATABASE_NAME = DBNAME
+    directory = directoryname
+    print 'importing from', directoryname, 'to', DBNAME
+
     # first extract the files from the directory
     filelist = listFiles(directory)
 
@@ -351,4 +357,4 @@ def exportDataSql(dataList):
 
 
 # Call main routine
-main()
+# main()
