@@ -5,8 +5,8 @@ from modules.multigraph import printgraphs
 
 # print graphs for Midlands
 print 'Printing Midlands graphs'
-printgraphs ('./midlands/midlandswipdata.sqlite', './midlands/graphs/')
+printgraphs('./midlands/midlandswipdata.sqlite', './midlands/graphs/')
 
 # print graphs for London
 print 'Printing London graphs'
-printgraphs ('./london/londonwipdata.sqlite', './london/graphs/')
+printgraphs('./london/londonwipdata.sqlite', './london/graphs/')

@@ -337,7 +337,9 @@ def plotForecastGraph(graphData):
     # plot the graph and save
     # plt.show()
     plt.savefig(
-        os.path.normpath(outputdirectory + projectNumber[0] + ' forecast totals graph.png'),
+        os.path.normpath(
+            outputdirectory +
+            projectNumber[0] + ' forecast totals graph.png'),
         bbox_inches='tight')
     plt.close('all')
 
@@ -498,7 +500,9 @@ def plotVariationGraph(graphData):
     # plot the graph and save
     # plt.show()
     plt.savefig(
-        os.path.normpath(outputdirectory + projectNumber[0]+' variations graph.png'),
+        os.path.normpath(outputdirectory +
+                         projectNumber[0] +
+                         ' variations graph.png'),
         bbox_inches='tight')
     plt.close('all')
 
