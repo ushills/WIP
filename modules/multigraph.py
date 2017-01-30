@@ -200,6 +200,9 @@ def plotForecastGraph(graphData):
     plt.figure(figsize=(12, 9))
     # fig = plt.figure()
 
+    # change to classic matplotlib styles
+    plt.style.use('classic')
+
     fig, (ax, ax3) = plt.subplots(nrows=2)
     ax2 = ax.twinx()
 
@@ -371,6 +374,9 @@ def plotVariationGraph(graphData):
 
     plt.figure(figsize=(12, 9))
     fig, (ax, ax2) = plt.subplots(nrows=2)
+
+    # change to classic matplotlib styles
+    plt.style.use('classic')
 
     # Create the forcast totals graph
     # create the lists
