@@ -61,9 +61,9 @@ def importDataSql(searchData, request):
 # i.e. LIMIT default graph last 12 months
 def inputProjectNumber():
     while True:
-        inp = raw_input('Enter the project to graph: ')
+        inp = input('Enter the project to graph: ')
         if not re.search(r"\d{5}", inp):
-            print 'Enter a valid job number:'
+            print('Enter a valid job number:')
             continue
         else:
             projectNumber = str(inp)
@@ -73,7 +73,7 @@ def inputProjectNumber():
         # inp = raw_input('Enter the range: ')
         inp = '12'
         if not re.search(r"\d{1,2}", inp):
-            print 'range between 1 and 24 months'
+            print('range between 1 and 24 months')
             continue
         else:
             months = inp
@@ -144,7 +144,7 @@ def plotForecastGraph(graphData):
     forecastContributionLine = ax2.plot(dates, forecastContribution, lw=2.5, color=tableau20[2], label='Contribution')
 
     # set the y axis label
-    ylabel = u'\xA3k'
+    ylabel = '\xA3k'
     ax.set_ylabel(ylabel, fontsize=14, rotation='vertical')
     ax2.set_ylabel(ylabel, fontsize=14, rotation='vertical', color=tableau20[2])
     for tl in ax2.get_yticklabels():
@@ -198,7 +198,7 @@ def plotForecastGraph(graphData):
     totalCertifiedline = ax3.plot(dates, totalCertified, lw=2.5, color=tableau20[6], label='Certified')
 
     # set the y axis label
-    ylabel = u'\xA3k'
+    ylabel = '\xA3k'
     ax3.set_ylabel(ylabel, fontsize=14, rotation='vertical')
 
     # add the legend
@@ -270,7 +270,7 @@ def plotVariationGraph(graphData):
 
 
     # create the bins for the bar chart and set width of bar
-    bins = range(len(dates))
+    bins = list(range(len(dates)))
     widthDate = 0.9
 
     # format the dates in the correct format to show
@@ -299,7 +299,7 @@ def plotVariationGraph(graphData):
     budgetVariationNoHist = ax.bar(bins, budgetVariationNo, bottom=cumulativeNoHist, width=widthDate, color=tableau20[11], label='Budget')
 
     # set the y axis label
-    ylabel = u'No of Variations'
+    ylabel = 'No of Variations'
     ax.set_ylabel(ylabel, fontsize=14, rotation='vertical')
 
     # set the title of the graph
@@ -324,7 +324,7 @@ def plotVariationGraph(graphData):
     budgetVariationValueHist = ax2.bar(cumulativebin2, budgetVariationValue, width=widthDate, color=tableau20[11], label='Budget')
 
     # set the y axis label
-    ylabel = u'Value of Variations\n(\xA3k)'
+    ylabel = 'Value of Variations\n(\xA3k)'
     ax2.set_ylabel(ylabel, fontsize=14, rotation='vertical')
 
     # set the x axis label

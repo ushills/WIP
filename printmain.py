@@ -4,9 +4,9 @@ from modules.multigraph import printgraphs
 # printgraphs(DATABASE_NAME, outputdirectory)
 
 # print graphs for Midlands
-print 'Printing Midlands graphs'
+print('Printing Midlands graphs')
 printgraphs('./midlands/midlandswipdata.sqlite', './midlands/graphs/')
 
 # print graphs for London
-print 'Printing London graphs'
+print('Printing London graphs')
 printgraphs('./london/londonwipdata.sqlite', './london/graphs/')

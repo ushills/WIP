@@ -62,14 +62,14 @@ def plotGraphs():
             sucessful += 1
 
         except:
-            print 'skipping', searchData[0], 'data incorrect'
-            print '-' * 25
+            print('skipping', searchData[0], 'data incorrect')
+            print('-' * 25)
             failed += 1
             continue
 
-    print 'printed', sucessful, 'project graphs'
+    print('printed', sucessful, 'project graphs')
     if failed > 0:
-        print failed, 'projects failed to print'
+        print(failed, 'projects failed to print')
 
 
 # function to extract date of most recent wip in database
@@ -152,9 +152,9 @@ def importDataSql(searchData, request):
 # i.e. LIMIT default graph last 12 months
 def inputProjectNumber():
     while True:
-        inp = raw_input('Enter the project to graph: ')
+        inp = input('Enter the project to graph: ')
         if not re.search(r"\d{5}", inp):
-            print 'Enter a valid job number:'
+            print('Enter a valid job number:')
             continue
         else:
             projectNumber = str(inp)
@@ -164,7 +164,7 @@ def inputProjectNumber():
         # inp = raw_input('Enter the range: ')
         inp = '12'
         if not re.search(r"\d{1,2}", inp):
-            print 'range between 1 and 24 months'
+            print('range between 1 and 24 months')
             continue
         else:
             months = inp
@@ -253,7 +253,7 @@ def plotForecastGraph(graphData):
         label='Contribution')
 
     # set the y axis label
-    ylabel = u'\xA3k'
+    ylabel = '\xA3k'
     ax.set_ylabel(ylabel, fontsize=14, rotation='vertical')
     ax2.set_ylabel(
         ylabel, fontsize=14, rotation='vertical',
@@ -316,7 +316,7 @@ def plotForecastGraph(graphData):
         color=tableau20[6], label='Certified')
 
     # set the y axis label
-    ylabel = u'\xA3k'
+    ylabel = '\xA3k'
     ax3.set_ylabel(ylabel, fontsize=14, rotation='vertical')
 
     # add the legend
@@ -405,7 +405,7 @@ def plotVariationGraph(graphData):
         submittedVariationValue.append(data[8]/1000)
 
     # create the bins for the bar chart and set width of bar
-    bins = range(len(dates))
+    bins = list(range(len(dates)))
     widthDate = 0.9
 
     # format the dates in the correct format to show
@@ -445,7 +445,7 @@ def plotVariationGraph(graphData):
         width=widthDate, color=tableau20[11], label='Budget')
 
     # set the y axis label
-    ylabel = u'No of Variations'
+    ylabel = 'No of Variations'
     ax.set_ylabel(ylabel, fontsize=14, rotation='vertical')
 
     # set the title of the graph
@@ -479,7 +479,7 @@ def plotVariationGraph(graphData):
         color=tableau20[11], label='Budget')
 
     # set the y axis label
-    ylabel = u'Value of Variations\n(\xA3k)'
+    ylabel = 'Value of Variations\n(\xA3k)'
     ax2.set_ylabel(ylabel, fontsize=14, rotation='vertical')
 
     # set the x axis label

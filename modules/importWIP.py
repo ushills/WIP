@@ -19,7 +19,7 @@ def importWIPdata(DBNAME, directoryname):
     global directory
     DATABASE_NAME = DBNAME
     directory = directoryname
-    print 'importing from', directoryname, 'to', DBNAME
+    print('importing from', directoryname, 'to', DBNAME)
 
     # first extract the files from the directory
     filelist = listFiles(os.path.normpath(directory))
@@ -36,7 +36,7 @@ def importWIPdata(DBNAME, directoryname):
 
 # search through directory to only return excel files
 def listFiles(directory):
-    print 'searching for files.....'
+    print('searching for files.....')
     filelist = []
     for root, directories, filenames in os.walk(os.path.normpath(directory)):
         for filename in filenames:
@@ -46,14 +46,14 @@ def listFiles(directory):
             if re.search(r"(.*).xlsx", rawfilename):
                 # print 'Appending', rawfilename
                 filelist.append(rawfilename)
-    print 'found', len(filelist), 'files'
+    print('found', len(filelist), 'files')
     return filelist
 
 
 # now check that the excel file is a wip file
 def checkWipfile(filelist):
     filteredfilelist = []
-    print 'filtering files.....'
+    print('filtering files.....')
     worksheetName = 'Executive Summary'
     projectNameCell = ('A5')
 
@@ -76,7 +76,7 @@ def checkWipfile(filelist):
         else:
             filteredfilelist.append(excelfile)
             # print 'adding', excelfile, 'to wipfile list'
-    print 'filtered', len(filelist), 'files to', len(filteredfilelist), 'files'
+    print('filtered', len(filelist), 'files to', len(filteredfilelist), 'files')
     return filteredfilelist
 
 
@@ -147,9 +147,9 @@ def importData(wipfilename):
             data_only=True)
         # and try to open the worksheet
         wipWorksheet = wipWorkbook[worksheetName]
-        print 'Opening workbook', worksheetName, 'in', wipfilename
+        print('Opening workbook', worksheetName, 'in', wipfilename)
     except:
-        print wipfilename, ' does not exist, exiting'
+        print(wipfilename, ' does not exist, exiting')
         quit()
 
     # extract the cell information
@@ -159,8 +159,8 @@ def importData(wipfilename):
     wipData['wipDate'] = str(wipWorksheet[wipDateRef].value)
     wipData['wipDate'] = (wipData['wipDate'].rsplit(' '))[0]
     wipDateFormatted = wipData['wipDate']
-    print 'Extracting', wipData['projectNumber'], '-', \
-        wipData['projectName'], 'data for', wipDateFormatted, '\n'
+    print('Extracting', wipData['projectNumber'], '-', \
+        wipData['projectName'], 'data for', wipDateFormatted, '\n')
 
     # extract variation information
     wipData['agreedVariationsNo'] = \
@@ -176,10 +176,10 @@ def importData(wipfilename):
                              + wipData['submittedVariationsNo']
     # check variations no balance
     if wipData['variationsNoTotal'] != variationsNoTotalCheck:
-        print 'Number of variations incorrect'
+        print('Number of variations incorrect')
         quit()
     else:
-        print 'Variations.....okay'
+        print('Variations.....okay')
 
     # extract sales information
     wipData['orderValue'] = int(wipWorksheet[orderValueRef].value)
@@ -196,10 +196,10 @@ def importData(wipfilename):
                         + wipData['submittedVariationsValue']
     # check sales values balance
     if abs(saleSubtotalCheck - wipData['saleSubtotal']) > 5:
-        print 'Sales value incorrect'
+        print('Sales value incorrect')
         quit()
     else:
-        print 'Sales.....okay'
+        print('Sales.....okay')
 
     # extract reserve information
     wipData['reserveAgreed'] = int(wipWorksheet[reserveAgreedRef].value)
@@ -216,10 +216,10 @@ def importData(wipfilename):
                    + wipData['reserveSubmitted'] \
                    + wipData['contracharges']
     if abs(sumChecksale - wipData['forecastSaleTotal']) > 5:
-        print 'Forecast sale subtotal incorrect'
+        print('Forecast sale subtotal incorrect')
         quit()
     else:
-        print 'Forecast sale.....okay'
+        print('Forecast sale.....okay')
 
     # extract cost information
     wipData['currentCost'] = int(wipWorksheet[currentCostRef].value)
@@ -230,10 +230,10 @@ def importData(wipfilename):
                    + wipData['costToComplete'] \
                    + wipData['defectProvision']
     if abs(sumCheckcost - wipData['forecastCostTotal']) > 5:
-        print 'Forecast cost subtotal incorrect'
+        print('Forecast cost subtotal incorrect')
         quit()
     else:
-        print 'Forecast cost.....okay'
+        print('Forecast cost.....okay')
 
     # extract margin information
     wipData['contractContribution'] = \
@@ -253,10 +253,10 @@ def importData(wipfilename):
                      + wipData['bettermentsRisks'] \
                      + wipData['managersView']
     if abs(sumCheckmargin - wipData['forecastMarginTotal']) > 5:
-        print 'Forecast margin subtotal incorrect'
+        print('Forecast margin subtotal incorrect')
         quit()
     else:
-        print 'Forecast margin.....okay'
+        print('Forecast margin.....okay')
 
     # extract cash information
     # if the field is blank insert a 0
@@ -270,7 +270,7 @@ def importData(wipfilename):
     except:
         wipData['totalCertified'] = 0
 
-    print 'All data imported sucessfully\n'
+    print('All data imported sucessfully\n')
     return wipData
 
 
