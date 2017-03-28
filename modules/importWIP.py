@@ -12,6 +12,7 @@ import re
 import warnings
 warnings.filterwarnings("ignore")
 
+
 # importWIPdata takes information in the form
 # importWIPdata(DATABASE_NAME, importdirectory)
 def importWIPdata(DBNAME, directoryname):
@@ -159,8 +160,8 @@ def importData(wipfilename):
     wipData['wipDate'] = str(wipWorksheet[wipDateRef].value)
     wipData['wipDate'] = (wipData['wipDate'].rsplit(' '))[0]
     wipDateFormatted = wipData['wipDate']
-    print('Extracting', wipData['projectNumber'], '-', \
-        wipData['projectName'], 'data for', wipDateFormatted, '\n')
+    print('Extracting', wipData['projectNumber'], '-',
+          wipData['projectName'], 'data for', wipDateFormatted, '\n')
 
     # extract variation information
     wipData['agreedVariationsNo'] = \
@@ -172,8 +173,8 @@ def importData(wipfilename):
     wipData['variationsNoTotal'] = \
         int(wipWorksheet[variationsNoTotalRef].value)
     variationsNoTotalCheck = wipData['agreedVariationsNo'] \
-                             + wipData['budgetVariationsNo'] \
-                             + wipData['submittedVariationsNo']
+        + wipData['budgetVariationsNo'] \
+        + wipData['submittedVariationsNo']
     # check variations no balance
     if wipData['variationsNoTotal'] != variationsNoTotalCheck:
         print('Number of variations incorrect')
@@ -191,9 +192,9 @@ def importData(wipfilename):
         int(wipWorksheet[submittedVariationsValueRef].value)
     wipData['saleSubtotal'] = int(wipWorksheet[saleSubtotalRef].value)
     saleSubtotalCheck = wipData['orderValue'] \
-                        + wipData['agreedVariationsValue'] \
-                        + wipData['budgetVariationsValue'] \
-                        + wipData['submittedVariationsValue']
+        + wipData['agreedVariationsValue'] \
+        + wipData['budgetVariationsValue'] \
+        + wipData['submittedVariationsValue']
     # check sales values balance
     if abs(saleSubtotalCheck - wipData['saleSubtotal']) > 5:
         print('Sales value incorrect')
@@ -208,13 +209,13 @@ def importData(wipfilename):
     wipData['contracharges'] = int(wipWorksheet[contrachargesRef].value)
     wipData['forecastSaleTotal'] = int(wipWorksheet[forecastSaleTotalRef].value)
     sumChecksale = wipData['orderValue'] \
-                   + wipData['agreedVariationsValue'] \
-                   + wipData['budgetVariationsValue'] \
-                   + wipData['submittedVariationsValue'] \
-                   + wipData['reserveAgreed'] \
-                   + wipData['reserveBudget'] \
-                   + wipData['reserveSubmitted'] \
-                   + wipData['contracharges']
+        + wipData['agreedVariationsValue'] \
+        + wipData['budgetVariationsValue'] \
+        + wipData['submittedVariationsValue'] \
+        + wipData['reserveAgreed'] \
+        + wipData['reserveBudget'] \
+        + wipData['reserveSubmitted'] \
+        + wipData['contracharges']
     if abs(sumChecksale - wipData['forecastSaleTotal']) > 5:
         print('Forecast sale subtotal incorrect')
         quit()
@@ -227,8 +228,8 @@ def importData(wipfilename):
     wipData['defectProvision'] = int(wipWorksheet[defectProvisionRef].value)
     wipData['forecastCostTotal'] = int(wipWorksheet[forecastCostTotalRef].value)
     sumCheckcost = wipData['currentCost'] \
-                   + wipData['costToComplete'] \
-                   + wipData['defectProvision']
+        + wipData['costToComplete'] \
+        + wipData['defectProvision']
     if abs(sumCheckcost - wipData['forecastCostTotal']) > 5:
         print('Forecast cost subtotal incorrect')
         quit()
@@ -250,8 +251,8 @@ def importData(wipfilename):
     wipData['forecastMarginTotal'] = \
         int(wipWorksheet[forecastMarginTotalRef].value)
     sumCheckmargin = wipData['contractContribution'] \
-                     + wipData['bettermentsRisks'] \
-                     + wipData['managersView']
+        + wipData['bettermentsRisks'] \
+        + wipData['managersView']
     if abs(sumCheckmargin - wipData['forecastMarginTotal']) > 5:
         print('Forecast margin subtotal incorrect')
         quit()

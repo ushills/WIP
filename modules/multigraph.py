@@ -76,18 +76,22 @@ def plotGraphs():
 def mostRecentWip():
 
     # connect to the datebase
-    conn = sqlite3.connect(os.path.normpath(DATABASE_NAME))
-    cur = conn.cursor()
+    try:
+        conn = sqlite3.connect(os.path.normpath(DATABASE_NAME))
+    except NameError:
+        print ("Database file", DATABASE_NAME, "does not exist")
+        print ("Failed in mostRecentWip")
+    else:
+        cur = conn.cursor()
+        # extract the most recent wipdate
+        cur.execute('''
+        SELECT max(wipDate) as latestdate FROM wipdata
+        ''')
 
-    # extract the most recent wipdate
-    cur.execute('''
-    SELECT max(wipDate) as latestdate FROM wipdata
-    ''')
+        latestDate = cur.fetchall()
+        # print (latestdate)
 
-    latestDate = cur.fetchall()
-    # print (latestdate)
-
-    return latestDate
+        return latestDate
 
 
 # function to extract list of most recent wips
@@ -96,22 +100,27 @@ def recentProjectList(searchDate):
     projectList = []
 
     # connect to the database
-    conn = sqlite3.connect(os.path.normpath(DATABASE_NAME))
-    cur = conn.cursor()
+    try:
+        conn = sqlite3.connect(os.path.normpath(DATABASE_NAME))
+    except NameError:
+        print ("Database file", DATABASE_NAME, "does not exist")
+        print ("Failed in recentProjectList")
+    else:
+        cur = conn.cursor()
 
-    # extract the list of most recent wips using the searchDate
-    cur.execute('''
-    SELECT projectNumber AS wipsThisMonth
-    FROM wipdata
-    WHERE (JulianDay(date('2016-12-05')) - JulianDay(wipDate)) < 35
-    GROUP BY projectNumber''')
+        # extract the list of most recent wips using the searchDate
+        cur.execute('''
+        SELECT projectNumber AS wipsThisMonth
+        FROM wipdata
+        WHERE (JulianDay(date(searchDate)) - JulianDay(wipDate)) < 35
+        GROUP BY projectNumber''')
 
-    projectList = cur.fetchall()
+        projectList = cur.fetchall()
 
-    for i in range(len(projectList)):
-        projects.append(projectList[i][0])
+        for i in range(len(projectList)):
+            projects.append(projectList[i][0])
 
-    return projects
+        return projects
 
 
 # function to read data from SQL database based on job number & months
