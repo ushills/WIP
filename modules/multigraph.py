@@ -79,8 +79,8 @@ def mostRecentWip():
     try:
         conn = sqlite3.connect(os.path.normpath(DATABASE_NAME))
     except NameError:
-        print ("Database file", DATABASE_NAME, "does not exist")
-        print ("Failed in mostRecentWip")
+        print("Database file", DATABASE_NAME, "does not exist")
+        print("Failed in mostRecentWip")
     else:
         cur = conn.cursor()
         # extract the most recent wipdate
@@ -88,8 +88,9 @@ def mostRecentWip():
         SELECT max(wipDate) as latestdate FROM wipdata
         ''')
 
-        latestDate = cur.fetchall()
-        # print (latestdate)
+        latestDate = cur.fetchone()
+        # extract the latestDate string from the list returned
+        latestDate = latestDate[0]
 
         return latestDate
 
@@ -103,8 +104,8 @@ def recentProjectList(searchDate):
     try:
         conn = sqlite3.connect(os.path.normpath(DATABASE_NAME))
     except NameError:
-        print ("Database file", DATABASE_NAME, "does not exist")
-        print ("Failed in recentProjectList")
+        print("Database file", DATABASE_NAME, "does not exist")
+        print("Failed in recentProjectList")
     else:
         cur = conn.cursor()
 
@@ -112,8 +113,8 @@ def recentProjectList(searchDate):
         cur.execute('''
         SELECT projectNumber AS wipsThisMonth
         FROM wipdata
-        WHERE (JulianDay(date(searchDate)) - JulianDay(wipDate)) < 35
-        GROUP BY projectNumber''')
+        WHERE (JulianDay(:searchDate) - JulianDay(wipDate)) < 35
+        GROUP BY projectNumber''', {'searchDate': searchDate})
 
         projectList = cur.fetchall()
 
