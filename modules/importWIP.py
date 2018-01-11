@@ -44,7 +44,7 @@ def listFiles(directory):
             rawfilename = str(os.path.join(root, filename))
             # print rawfilename
             # check if the file is excel, i.e. ends .xlsx
-            if re.search(r"(.*).xlsx", rawfilename):
+            if re.search(r"(.*).xls?", rawfilename):
                 # print 'Appending', rawfilename
                 filelist.append(rawfilename)
     print('found', len(filelist), 'files')
@@ -225,7 +225,11 @@ def importData(wipfilename):
     # extract cost information
     wipData['currentCost'] = int(wipWorksheet[currentCostRef].value)
     wipData['costToComplete'] = int(wipWorksheet[costToCompleteRef].value)
-    wipData['defectProvision'] = int(wipWorksheet[defectProvisionRef].value)
+    try:
+        wipWorksheet[defectProvisionRef].value
+        wipData['defectProvision'] = int(wipWorksheet[defectProvisionRef].value)
+    except TypeError:
+        wipData['defectProvision'] = 0
     wipData['forecastCostTotal'] = int(wipWorksheet[forecastCostTotalRef].value)
     sumCheckcost = wipData['currentCost'] \
         + wipData['costToComplete'] \
