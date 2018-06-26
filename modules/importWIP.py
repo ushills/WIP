@@ -57,6 +57,7 @@ def checkWipfile(filelist):
     print('filtering files.....')
     worksheetName = 'Executive Summary'
     projectNameCell = ('A5')
+    projectNumberCell = ('B6')
 
     # go through the filelist and check each file
     for excelfile in filelist:
@@ -73,6 +74,8 @@ def checkWipfile(filelist):
             continue
         if (wipWorksheet[projectNameCell].value) != 'Project Name:':
             # print excelfile, 'is not a wip file'
+            continue
+        elif (wipWorksheet[projectNumberCell].value) is None:
             continue
         else:
             filteredfilelist.append(excelfile)
