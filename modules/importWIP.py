@@ -2,8 +2,6 @@
 
 # import libraries
 from openpyxl import load_workbook
-import time
-import datetime
 import sqlite3
 import os
 import re
@@ -32,7 +30,7 @@ def importWIPdata(DBNAME, directoryname):
     # and export it to the sqldatabase
     for wipfilename in wipfiles:
         wipData = importData(wipfilename)
-        exportDataSql(wipData)
+        exportDataSql(wipData, DATABASE_NAME)
 
 
 # search through directory to only return excel files
@@ -229,7 +227,6 @@ def importData(wipfilename):
     wipData['currentCost'] = int(wipWorksheet[currentCostRef].value)
     wipData['costToComplete'] = int(wipWorksheet[costToCompleteRef].value)
     try:
-        wipWorksheet[defectProvisionRef].value
         wipData['defectProvision'] = int(wipWorksheet[defectProvisionRef].value)
     except TypeError:
         wipData['defectProvision'] = 0
@@ -283,11 +280,11 @@ def importData(wipfilename):
 
 
 # function to import data into an SQL database
-def exportDataSql(dataList):
+def exportDataSql(dataList, database):
     # print dataList
     projectName = dataList['projectName']
     wipDate = dataList['wipDate']
-    conn = sqlite3.connect(os.path.normpath(DATABASE_NAME))
+    conn = sqlite3.connect(os.path.normpath(database))
     cur = conn.cursor()
 
     # delete the database table if it exists...for testing only
@@ -350,7 +347,3 @@ def exportDataSql(dataList):
     conn.commit()
     cur.close()
     conn.close()
-
-
-# Call main routine
-# main()

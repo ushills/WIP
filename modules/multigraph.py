@@ -4,14 +4,9 @@
 # import libraries
 import sqlite3
 import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-from matplotlib.dates import YearLocator, MonthLocator, DateFormatter
+from matplotlib.dates import MonthLocator, DateFormatter
 import datetime
-import re
 import os
-
-# set database name
-# DATABASE_NAME = 'wipdatadb.sqlite'
 
 
 # main routine
@@ -29,10 +24,10 @@ def plotGraphs():
     monthsToPlot = '12'
 
     # extract the most recent wip date from the database
-    recentWipDate = mostRecentWip()
+    recentWipDate = mostRecentWip(DATABASE_NAME)
 
     # extract the projectList based on the most recent wip date
-    projectList = recentProjectList(recentWipDate)
+    projectList = recentProjectList(recentWipDate, DATABASE_NAME)
 
     # iterate through the projectList and plot graphs to each project
     sucessful = 0
@@ -46,7 +41,7 @@ def plotGraphs():
             request = "wipdate, projectNumber, projectname.name, \
                        forecastCostTotal, forecastSaleTotal, \
                        forecastMarginTotal, currentCost, totalCertified"
-            graphData = importDataSql(searchData, request)
+            graphData = importDataSql(searchData, request, DATABASE_NAME)
             plotForecastGraph(graphData)
 
             # plot the variation histogram
@@ -54,11 +49,8 @@ def plotGraphs():
                        agreedVariationsNo, budgetVariationsNo, \
                        submittedVariationsNo, agreedVariationsValue, \
                        budgetVariationsValue, submittedVariationsValue"
-            graphData = importDataSql(searchData, request)
+            graphData = importDataSql(searchData, request, DATABASE_NAME)
             plotVariationGraph(graphData)
-
-            # print 'ploted graphs for', searchData[0]
-            # print '-' * 25
             sucessful += 1
 
         except:
@@ -73,13 +65,13 @@ def plotGraphs():
 
 
 # function to extract date of most recent wip in database
-def mostRecentWip():
+def mostRecentWip(database):
 
     # connect to the datebase
     try:
-        conn = sqlite3.connect(os.path.normpath(DATABASE_NAME))
+        conn = sqlite3.connect(os.path.normpath(database))
     except NameError:
-        print("Database file", DATABASE_NAME, "does not exist")
+        print("Database file", database, "does not exist")
         print("Failed in mostRecentWip")
     else:
         cur = conn.cursor()
@@ -90,21 +82,20 @@ def mostRecentWip():
 
         latestDate = cur.fetchone()
         # extract the latestDate string from the list returned
-        latestDate = latestDate[0]
+        latestDate = str(latestDate[0])
 
         return latestDate
 
 
 # function to extract list of most recent wips
-def recentProjectList(searchDate):
+def recentProjectList(searchDate, database):
     projects = []
-    projectList = []
 
     # connect to the database
     try:
-        conn = sqlite3.connect(os.path.normpath(DATABASE_NAME))
+        conn = sqlite3.connect(os.path.normpath(database))
     except NameError:
-        print("Database file", DATABASE_NAME, "does not exist")
+        print("Database file", database, "does not exist")
         print("Failed in recentProjectList")
     else:
         cur = conn.cursor()
@@ -125,15 +116,10 @@ def recentProjectList(searchDate):
 
 
 # function to read data from SQL database based on job number & months
-def importDataSql(searchData, request):
-    # temp variable to import the data we want
-    # we will get this variable from the routine call in future
-    # print request
-
-    # split out searchData and connect to database
+def importDataSql(searchData, request, database):
     projectNumber = searchData[0]
     months = searchData[1]
-    conn = sqlite3.connect(os.path.normpath(DATABASE_NAME))
+    conn = sqlite3.connect(os.path.normpath(database))
     cur = conn.cursor()
 
     # extract seachdata
@@ -150,37 +136,7 @@ def importDataSql(searchData, request):
     LIMIT :months)
     ORDER BY wipdate ASC
     ''', {'projectNumber': projectNumber, 'months': months})
-
-    all_rows = cur.fetchall()
-    # print all_rows
-    # print len(all_rows)
-
-    return all_rows
-
-
-# function to request job number to graph and months history
-# i.e. LIMIT default graph last 12 months
-def inputProjectNumber():
-    while True:
-        inp = input('Enter the project to graph: ')
-        if not re.search(r"\d{5}", inp):
-            print('Enter a valid job number:')
-            continue
-        else:
-            projectNumber = str(inp)
-            break
-
-    while True:
-        # inp = raw_input('Enter the range: ')
-        inp = '12'
-        if not re.search(r"\d{1,2}", inp):
-            print('range between 1 and 24 months')
-            continue
-        else:
-            months = inp
-            break
-
-    return (projectNumber, months)
+    return cur.fetchall()
 
 
 # function to produce and output forecast graph
@@ -522,5 +478,3 @@ def plotVariationGraph(graphData):
         bbox_inches='tight')
     plt.close('all')
 
-# call main routine
-# main()
