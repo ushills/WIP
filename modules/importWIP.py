@@ -42,6 +42,9 @@ def listFiles(directory):
     for root, directories, filenames in os.walk(os.path.normpath(directory)):
         for filename in filenames:
             rawfilename = str(os.path.join(root, filename))
+            # skip temp files beginning with ~
+            if re.search(r"(~.*).*", rawfilename):
+                continue
             # print rawfilename
             # check if the file is excel, i.e. ends .xlsx
             if re.search(r"(.*).xls?", rawfilename):
