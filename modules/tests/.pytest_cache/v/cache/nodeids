@@ -1,0 +1,13 @@
+[
+  "test_importWIP.py::TestImportWIP::()::test_listFiles",
+  "test_importWIP.py::TestImportWIP::()::test_checkWipfile",
+  "test_importWIP.py::TestImportWIP::()::test_importData",
+  "test_importWIP.py::TestImportWIP::()::test_exportDataSql",
+  "test_importWIP.py::TestMultiGraph::()::test_createdatabase",
+  "test_importWIP.py::TestMultiGraph::()::test_sqldata",
+  "test_importWIP.py::TestMultiGraph::()::test_mostRecentWip",
+  "test_importWIP.py::TestMultiGraph::()::test_recentProjectList",
+  "test_importWIP.py::TestMultiGraph::()::test_importDataSql",
+  "test_importWIP.py::TestMultiGraph::()::test_deletedatabase",
+  "test_importWIP.py::TestMultiGraph::()::test_printgraphs"
+]

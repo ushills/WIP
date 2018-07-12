@@ -3,7 +3,7 @@ import os
 import sqlite3
 
 from modules.importWIP import listFiles, checkWipfile, importData, importWIPdata, exportDataSql
-from modules.multigraph import mostRecentWip, recentProjectList, importDataSql
+from modules.multigraph import mostRecentWip, recentProjectList, importDataSql, printgraphs
 
 
 class TestImportWIP:
@@ -20,7 +20,6 @@ class TestImportWIP:
         # check temp files beginning with ~ are not included
         assert 'test_listfiles\\~WIP_file.xlsx' not in filelist
 
-
     def test_checkWipfile(self):
         # test that only wip files are returned
         wipfile = ['test_listfiles\\WIP_file.xlsx', 'test_listfiles\\test1.xls']
@@ -31,7 +30,6 @@ class TestImportWIP:
         # test that a non wip file is rejected
         wipfile = ['test_listfiles\\not_WIP_file.xlsx']
         assert checkWipfile(wipfile) == []
-
 
     def test_importData(self):
         wipfile = 'test_listfiles\\WIP_file.xlsx'
@@ -49,7 +47,6 @@ class TestImportWIP:
         assert type(data['projectName']) is str
         assert type(data['projectNumber']) is str
         assert type(data['wipDate']) is str
-
 
     def test_exportDataSql(self):
         db_name = './testdata.sqlite'
@@ -88,7 +85,6 @@ class TestMultiGraph:
         importWIPdata(db_name, './test_listfiles')
         assert os.path.isfile(db_name) is True
 
-
     def test_sqldata(self):
         # check the data is correct
         db_name = './testdata.sqlite'
@@ -104,16 +100,13 @@ class TestMultiGraph:
                             56787, 6375708, -254, -57, -5678, -9889, 6359828, 54874, 87899, 68998,
                             211771, 6148057, 5587, 147, 6153791, 6598787, 1144, 1, 'test_project')]
 
-
     def test_mostRecentWip(self):
         db_name = './testdata.sqlite'
         assert mostRecentWip(db_name) == '1970-01-01'
 
-
     def test_recentProjectList(self):
         db_name = './testdata.sqlite'
         assert recentProjectList('1970-02-01', db_name) == ['test_project_number']
-
 
     def test_importDataSql(self):
         db_name = './testdata.sqlite'
@@ -129,7 +122,6 @@ class TestMultiGraph:
                                                                  'test_project', 211771, 6359828, 6153791,
                                                                  54874, 1144, 1, 1, 1, 25450, 114, 56787)]
 
-
     def test_deletedatabase(self):
         # delete the file when finished
         db_name = './testdata.sqlite'
@@ -138,3 +130,8 @@ class TestMultiGraph:
         else:
             print(db_name, 'does not exist')
         assert os.path.isfile(db_name) is False
+
+    def test_printgraphs(self):
+        printgraphs('./test_database/test.sqlite', './test_graphs/test_')
+        assert os.path.isfile('./test_graphs/test_12345 variations graph.png') is True
+        assert os.path.isfile('./test_graphs/test_12345 forecast totals graph.png') is True
