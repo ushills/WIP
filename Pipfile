@@ -6,9 +6,9 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-matplotlib = "*"
 openpyxl = "*"
 pytest = "*"
+matplotlib = "==2.*"
 
 [requires]
 python_version = "3.7"
