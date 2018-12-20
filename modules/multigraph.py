@@ -477,4 +477,3 @@ def plotVariationGraph(graphData):
                          ' variations graph.png'),
         bbox_inches='tight')
     plt.close('all')
-
