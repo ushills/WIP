@@ -10,51 +10,51 @@ import os
 
 
 # main routine
-def printgraphs(DBNAME, directory):
-    global DATABASE_NAME
-    global outputdirectory
-    DATABASE_NAME = DBNAME
-    outputdirectory = directory
-    plotGraphs()
+def print_graphs(dbname, directory):
+    global _database_name
+    global output_directory
+    _database_name = dbname
+    output_directory = directory
+    plot_graphs()
 
 
 # function to plot graphs - primary function
-def plotGraphs():
+def plot_graphs():
 
-    monthsToPlot = "12"
+    months_to_plot = "12"
 
     # extract the most recent wip date from the database
-    recentWipDate = mostRecentWip(DATABASE_NAME)
+    recent_wip_date = most_recent_wip(_database_name)
 
-    # extract the projectList based on the most recent wip date
-    projectList = recentProjectList(recentWipDate, DATABASE_NAME)
+    # extract the project_list based on the most recent wip date
+    project_list = recent_project_list(recent_wip_date, _database_name)
 
-    # iterate through the projectList and plot graphs to each project
+    # iterate through the project_list and plot graphs to each project
     sucessful = 0
     failed = 0
-    for project in projectList:
+    for project in project_list:
         try:
-            searchData = (project, monthsToPlot)
-            # print 'plotting graphs for', searchData[0]
+            search_data = (project, months_to_plot)
+            # print 'plotting graphs for', search_data[0]
 
             # plot the Forecast Data graph
             request = "wipdate, projectNumber, projectname.name, \
                        forecastCostTotal, forecastSaleTotal, \
                        forecastMarginTotal, currentCost, totalCertified"
-            graphData = importDataSql(searchData, request, DATABASE_NAME)
-            plotForecastGraph(graphData)
+            graph_data = import_data_sql(search_data, request, _database_name)
+            plot_forecast_graph(graph_data)
 
             # plot the variation histogram
             request = "wipdate, projectNumber, projectname.name, \
                        agreedVariationsNo, budgetVariationsNo, \
                        submittedVariationsNo, agreedVariationsValue, \
                        budgetVariationsValue, submittedVariationsValue"
-            graphData = importDataSql(searchData, request, DATABASE_NAME)
-            plotVariationGraph(graphData)
+            graph_data = import_data_sql(search_data, request, _database_name)
+            plot_variation_graph(graph_data)
             sucessful += 1
 
-        except:
-            print("skipping", searchData[0], "data incorrect")
+        except BaseException:
+            print("skipping", search_data[0], "data incorrect")
             print("-" * 25)
             failed += 1
             continue
@@ -65,14 +65,14 @@ def plotGraphs():
 
 
 # function to extract date of most recent wip in database
-def mostRecentWip(database):
+def most_recent_wip(database):
 
     # connect to the datebase
     try:
         conn = sqlite3.connect(os.path.normpath(database))
     except NameError:
         print("Database file", database, "does not exist")
-        print("Failed in mostRecentWip")
+        print("Failed in most_recent_wip")
     else:
         cur = conn.cursor()
         # extract the most recent wipdate
@@ -82,15 +82,15 @@ def mostRecentWip(database):
         """
         )
 
-        latestDate = cur.fetchone()
-        # extract the latestDate string from the list returned
-        latestDate = str(latestDate[0])
+        latest_date = cur.fetchone()
+        # extract the latest_date string from the list returned
+        latest_date = str(latest_date[0])
 
-        return latestDate
+        return latest_date
 
 
 # function to extract list of most recent wips
-def recentProjectList(searchDate, database):
+def recent_project_list(search_date, database):
     projects = []
 
     # connect to the database
@@ -98,32 +98,32 @@ def recentProjectList(searchDate, database):
         conn = sqlite3.connect(os.path.normpath(database))
     except NameError:
         print("Database file", database, "does not exist")
-        print("Failed in recentProjectList")
+        print("Failed in recent_project_list")
     else:
         cur = conn.cursor()
 
-        # extract the list of most recent wips using the searchDate
+        # extract the list of most recent wips using the search_date
         cur.execute(
             """
         SELECT projectNumber AS wipsThisMonth
         FROM wipdata
-        WHERE (JulianDay(:searchDate) - JulianDay(wipDate)) < 35
+        WHERE (JulianDay(:search_date) - JulianDay(wipDate)) < 35
         GROUP BY projectNumber""",
-            {"searchDate": searchDate},
+            {"search_date": search_date},
         )
 
-        projectList = cur.fetchall()
+        project_list = cur.fetchall()
 
-        for i in range(len(projectList)):
-            projects.append(projectList[i][0])
+        for i in range(len(project_list)):
+            projects.append(project_list[i][0])
 
         return projects
 
 
 # function to read data from SQL database based on job number & months
-def importDataSql(searchData, request, database):
-    projectNumber = searchData[0]
-    months = searchData[1]
+def import_data_sql(search_data, request, database):
+    project_number = search_data[0]
+    months = search_data[1]
     conn = sqlite3.connect(os.path.normpath(database))
     cur = conn.cursor()
 
@@ -144,13 +144,13 @@ def importDataSql(searchData, request, database):
     LIMIT :months)
     ORDER BY wipdate ASC
     """,
-        {"projectNumber": projectNumber, "months": months},
+        {"projectNumber": project_number, "months": months},
     )
     return cur.fetchall()
 
 
 # function to produce and output forecast graph
-def plotForecastGraph(graphData):
+def plot_forecast_graph(graph_data):
 
     # Set the common variables
 
@@ -200,22 +200,22 @@ def plotForecastGraph(graphData):
     # Create the forcast totals graph
     # create the lists
     dates = []
-    projectNumber = []
-    projectName = []
-    forecastCost = []
-    forecastSale = []
-    forecastContribution = []
+    project_number = []
+    project_name = []
+    forecast_cost = []
+    forecast_sale = []
+    forecast_contribution = []
 
-    # loop through the list graphData to extract the x and y axis
+    # loop through the list graph_data to extract the x and y axis
     # data is produced in the folllowing format
     # [(u'2016-01-31', -1355036), (u'2015-12-31', -1354858),
-    for data in graphData:
+    for data in graph_data:
         dates.append(data[0])
-        projectNumber.append(data[1])
-        projectName.append(data[2])
-        forecastCost.append(data[3] / 1000)
-        forecastSale.append(data[4] / 1000)
-        forecastContribution.append(data[5] / 1000)
+        project_number.append(data[1])
+        project_name.append(data[2])
+        forecast_cost.append(data[3] / 1000)
+        forecast_sale.append(data[4] / 1000)
+        forecast_contribution.append(data[5] / 1000)
 
     # format the dates in the correct format to show
     dates = [datetime.datetime.strptime(d, "%Y-%m-%d").date() for d in dates]
@@ -230,16 +230,16 @@ def plotForecastGraph(graphData):
     ax2.get_yaxis().tick_right()
 
     # plot the data
-    forecastSaleLine = ax.plot(
-        dates, forecastSale, lw=2.5, color=tableau20[5], label="Forecast Sale"
+    forecast_sale_line = ax.plot(
+        dates, forecast_sale, lw=2.5, color=tableau20[5], label="Forecast Sale"
     )
 
-    forecastCostLine = ax.plot(
-        dates, forecastCost, lw=2.5, color=tableau20[0], label="Forecast Cost"
+    forecast_cost_line = ax.plot(
+        dates, forecast_cost, lw=2.5, color=tableau20[0], label="Forecast Cost"
     )
 
-    forecastContributionLine = ax2.plot(
-        dates, forecastContribution, lw=2.5, color=tableau20[2], label="Contribution"
+    forecast_contribution_line = ax2.plot(
+        dates, forecast_contribution, lw=2.5, color=tableau20[2], label="Contribution"
     )
 
     # set the y axis label
@@ -251,39 +251,39 @@ def plotForecastGraph(graphData):
         tl.set_color(tableau20[2])
 
     # set the title of the graph
-    title = projectName[0] + " (" + projectNumber[0] + ")\n"
+    title = project_name[0] + " (" + project_number[0] + ")\n"
     ax.set_title(title, fontsize=16, ha="center")
     plt.gcf().autofmt_xdate()
 
     # create the to-date graph
     # create the lists
     dates = []
-    projectNumber = []
-    projectName = []
-    currentCost = []
-    totalCertified = []
+    project_number = []
+    project_name = []
+    current_cost = []
+    total_certified = []
 
-    # loop through the list graphData to extract the x and y axis
+    # loop through the list graph_data to extract the x and y axis
     # data is produced in the folllowing format
     # [(u'2016-01-31', -1355036), (u'2015-12-31', -1354858),
-    for data in graphData:
+    for data in graph_data:
         dates.append(data[0])
-        projectNumber.append(data[1])
-        projectName.append(data[2])
-        currentCost.append(data[6] / 1000)
-        totalCertified.append(data[7] / 1000)
+        project_number.append(data[1])
+        project_name.append(data[2])
+        current_cost.append(data[6] / 1000)
+        total_certified.append(data[7] / 1000)
 
     # format the dates in the correct format to show
     dates = [datetime.datetime.strptime(d, "%Y-%m-%d").date() for d in dates]
 
     # format the x axis date format
     months = MonthLocator()
-    monthFormat = DateFormatter("%b-%Y")
+    month_format = DateFormatter("%b-%Y")
     ax3.fmt_xdata = DateFormatter("%b-%Y")
     ax3.xaxis.set_major_locator(months)
-    ax3.xaxis.set_major_formatter(monthFormat)
+    ax3.xaxis.set_major_formatter(month_format)
     ax.xaxis.set_major_locator(months)
-    ax.xaxis.set_major_formatter(monthFormat)
+    ax.xaxis.set_major_formatter(month_format)
 
     # create the axis
     # ax3 = plt.subplot(212)
@@ -296,11 +296,11 @@ def plotForecastGraph(graphData):
     ax3.get_yaxis().tick_left()
 
     # plot the data
-    currentCostline = ax3.plot(
-        dates, currentCost, lw=2.5, color=tableau20[11], label="Cost"
+    current_cost_line = ax3.plot(
+        dates, current_cost, lw=2.5, color=tableau20[11], label="Cost"
     )
-    totalCertifiedline = ax3.plot(
-        dates, totalCertified, lw=2.5, color=tableau20[6], label="Certified"
+    total_certified_line = ax3.plot(
+        dates, total_certified, lw=2.5, color=tableau20[6], label="Certified"
     )
 
     # set the y axis label
@@ -333,7 +333,7 @@ def plotForecastGraph(graphData):
     # plt.show()
     plt.savefig(
         os.path.normpath(
-            outputdirectory + projectNumber[0] + " forecast totals graph.png"
+            output_directory + project_number[0] + " forecast totals graph.png"
         ),
         bbox_inches="tight",
     )
@@ -341,7 +341,7 @@ def plotForecastGraph(graphData):
 
 
 # function to produce and output variation graph
-def plotVariationGraph(graphData):
+def plot_variation_graph(graph_data):
 
     # Set the common variables
 
@@ -389,32 +389,32 @@ def plotVariationGraph(graphData):
     # Create the forcast totals graph
     # create the lists
     dates = []
-    projectNumber = []
-    projectName = []
-    agreedVariationNo = []
-    budgetVariationNo = []
-    submittedVariationNo = []
-    agreedVariationValue = []
-    budgetVariationValue = []
-    submittedVariationValue = []
+    project_number = []
+    project_name = []
+    agreed_variation_no = []
+    budget_variation_no = []
+    submitted_variation_no = []
+    agreed_variation_value = []
+    budget_variation_value = []
+    submitted_variation_value = []
 
-    # loop through the list graphData to extract the x and y axis
+    # loop through the list graph_data to extract the x and y axis
     # data is produced in the folllowing format
     # [(u'2016-01-31', -1355036), (u'2015-12-31', -1354858),
-    for data in graphData:
+    for data in graph_data:
         dates.append(data[0])
-        projectNumber.append(data[1])
-        projectName.append(data[2])
-        agreedVariationNo.append(data[3])
-        budgetVariationNo.append(data[4])
-        submittedVariationNo.append(data[5])
-        agreedVariationValue.append(data[6] / 1000)
-        budgetVariationValue.append(data[7] / 1000)
-        submittedVariationValue.append(data[8] / 1000)
+        project_number.append(data[1])
+        project_name.append(data[2])
+        agreed_variation_no.append(data[3])
+        budget_variation_no.append(data[4])
+        submitted_variation_no.append(data[5])
+        agreed_variation_value.append(data[6] / 1000)
+        budget_variation_value.append(data[7] / 1000)
+        submitted_variation_value.append(data[8] / 1000)
 
     # create the bins for the bar chart and set width of bar
     bins = list(range(len(dates)))
-    widthDate = 0.9
+    width_of_date = 0.9
 
     # format the dates in the correct format to show
     dates = [datetime.datetime.strptime(d, "%Y-%m-%d").date() for d in dates]
@@ -436,27 +436,33 @@ def plotVariationGraph(graphData):
     # plot the data
     # as this is a stacked graph first we need to zip the arrays for the
     # bottom statement
-    cumulativeNoHist = [a + b for a, b in zip(agreedVariationNo, submittedVariationNo)]
+    cumulative_number_histogram = [
+        a + b for a, b in zip(agreed_variation_no, submitted_variation_no)
+    ]
 
     # plot the bars
-    agreedVariationNoHist = ax.bar(
-        bins, agreedVariationNo, width=widthDate, color=tableau20[5], label="Agreed"
+    agreed_variation_no_histogram = ax.bar(
+        bins,
+        agreed_variation_no,
+        width=width_of_date,
+        color=tableau20[5],
+        label="Agreed",
     )
 
-    submittedVariationNoHist = ax.bar(
+    submitted_variation_no_histogram = ax.bar(
         bins,
-        submittedVariationNo,
-        bottom=agreedVariationNo,
-        width=widthDate,
+        submitted_variation_no,
+        bottom=agreed_variation_no,
+        width=width_of_date,
         color=tableau20[15],
         label="Submitted",
     )
 
-    budgetVariationNoHist = ax.bar(
+    budget_variation_no_histogram = ax.bar(
         bins,
-        budgetVariationNo,
-        bottom=cumulativeNoHist,
-        width=widthDate,
+        budget_variation_no,
+        bottom=cumulative_number_histogram,
+        width=width_of_date,
         color=tableau20[11],
         label="Budget",
     )
@@ -466,7 +472,7 @@ def plotVariationGraph(graphData):
     ax.set_ylabel(ylabel, fontsize=14, rotation="vertical")
 
     # set the title of the graph
-    title = projectName[0] + " (" + projectNumber[0] + ")\n"
+    title = project_name[0] + " (" + project_number[0] + ")\n"
     ax.set_title(title, fontsize=16, ha="center")
 
     # Ensure that the axis ticks only show up on the bottom and
@@ -478,27 +484,31 @@ def plotVariationGraph(graphData):
 
     # plot the data
     # first set the width of the bins for side by side bar chart
-    widthDate = 0.3
-    cumulativebin = [x + widthDate for x in bins]
-    cumulativebin2 = [x + (2 * widthDate) for x in bins]
+    width_of_date = 0.3
+    cumulative_bin = [x + width_of_date for x in bins]
+    cumulative_bin_2 = [x + (2 * width_of_date) for x in bins]
 
     # plot the bars
-    agreedVariationValueHist = ax2.bar(
-        bins, agreedVariationValue, width=widthDate, color=tableau20[5], label="Agreed"
+    agreed_variation_value_histogram = ax2.bar(
+        bins,
+        agreed_variation_value,
+        width=width_of_date,
+        color=tableau20[5],
+        label="Agreed",
     )
 
-    submittedVariationValueHist = ax2.bar(
-        cumulativebin,
-        submittedVariationValue,
-        width=widthDate,
+    submitted_variation_value_histogram = ax2.bar(
+        cumulative_bin,
+        submitted_variation_value,
+        width=width_of_date,
         color=tableau20[15],
         label="Submitted",
     )
 
-    budgetVariationValueHist = ax2.bar(
-        cumulativebin2,
-        budgetVariationValue,
-        width=widthDate,
+    budget_variation_value_histogram = ax2.bar(
+        cumulative_bin_2,
+        budget_variation_value,
+        width=width_of_date,
         color=tableau20[11],
         label="Budget",
     )
@@ -508,7 +518,7 @@ def plotVariationGraph(graphData):
     ax2.set_ylabel(ylabel, fontsize=14, rotation="vertical")
 
     # set the x axis label
-    ax2.set_xticks(cumulativebin)
+    ax2.set_xticks(cumulative_bin)
     ax2.set_xticklabels(dates)
     plt.gcf().autofmt_xdate()
 
@@ -535,7 +545,9 @@ def plotVariationGraph(graphData):
     # plot the graph and save
     # plt.show()
     plt.savefig(
-        os.path.normpath(outputdirectory + projectNumber[0] + " variations graph.png"),
+        os.path.normpath(
+            output_directory + project_number[0] + " variations graph.png"
+        ),
         bbox_inches="tight",
     )
     plt.close("all")

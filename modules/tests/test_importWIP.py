@@ -2,27 +2,26 @@
 import os
 import sqlite3
 
-global test_path
 test_path = "modules\\tests\\"
 
 from modules.importWIP import (
-    listFiles,
-    checkWipfile,
-    importData,
-    importWIPdata,
-    exportDataSql,
+    list_files,
+    check_wipfile,
+    import_data,
+    import_wip_data,
+    export_data_sql,
 )
 from modules.multigraph import (
-    mostRecentWip,
-    recentProjectList,
-    importDataSql,
-    printgraphs,
+    most_recent_wip,
+    recent_project_list,
+    import_data_sql,
+    print_graphs,
 )
 
 
 class TestImportWIP:
-    def test_listFiles(self):
-        filelist = listFiles(test_path + "test_listfiles\\")
+    def test_list_files(self):
+        filelist = list_files(test_path + "test_listfiles\\")
         print(filelist)
         assert len(filelist) == 4
         assert test_path + "test_listfiles\\not_excel.txt" not in filelist
@@ -33,23 +32,23 @@ class TestImportWIP:
         # check temp files beginning with ~ are not included
         assert test_path + "test_listfiles\\~WIP_file.xlsx" not in filelist
 
-    def test_checkWipfile(self):
+    def test_check_wipfile(self):
         # test that only wip files are returned
         wipfile = [
             test_path + "test_listfiles\\WIP_file.xlsx",
             test_path + "test_listfiles\\test1.xls",
         ]
-        assert checkWipfile(wipfile) == [test_path + "test_listfiles\\WIP_file.xlsx"]
+        assert check_wipfile(wipfile) == [test_path + "test_listfiles\\WIP_file.xlsx"]
         # test using a list that contains a non excel file
         wipfile = [test_path + "test_listfiles\\not_excel.txt"]
-        assert checkWipfile(wipfile) == []
+        assert check_wipfile(wipfile) == []
         # test that a non wip file is rejected
         wipfile = [test_path + "test_listfiles\\not_WIP_file.xlsx"]
-        assert checkWipfile(wipfile) == []
+        assert check_wipfile(wipfile) == []
 
-    def test_importData(self):
+    def test_import_data(self):
         wipfile = test_path + "test_listfiles\\WIP_file.xlsx"
-        data = importData(wipfile)
+        data = import_data(wipfile)
         assert data == {
             "projectName": "test_project",
             "projectNumber": "test_project_number",
@@ -83,7 +82,7 @@ class TestImportWIP:
         assert type(data["projectNumber"]) is str
         assert type(data["wipDate"]) is str
 
-    def test_exportDataSql(self):
+    def test_export_data_sql(self):
         db_name = test_path + "test_database\\testdata.sqlite"
         data = {
             "projectName": "test_project",
@@ -115,7 +114,7 @@ class TestImportWIP:
             "totalCertified": 1144,
         }
         # create database
-        exportDataSql(data, db_name)
+        export_data_sql(data, db_name)
         # check database is created
         assert os.path.isfile(db_name) is True
         conn = sqlite3.connect(os.path.normpath(db_name))
@@ -165,10 +164,10 @@ class TestImportWIP:
 
 
 class TestMultiGraph:
-    def test_createdatabase(self):
+    def test_create_database(self):
         # import the data & create the database
         db_name = test_path + "\\test_database\\testdata.sqlite"
-        importWIPdata(db_name, test_path + "\\test_listfiles")
+        import_wip_data(db_name, test_path + "\\test_listfiles")
         assert os.path.isfile(db_name) is True
 
     def test_sqldata(self):
@@ -218,25 +217,25 @@ class TestMultiGraph:
             )
         ]
 
-    def test_mostRecentWip(self):
+    def test_most_recent_wip(self):
         db_name = test_path + "test_database\\testdata.sqlite"
-        assert mostRecentWip(db_name) == "1970-01-01"
+        assert most_recent_wip(db_name) == "1970-01-01"
 
-    def test_recentProjectList(self):
+    def test_recent_project_list(self):
         db_name = test_path + "test_database\\testdata.sqlite"
-        assert recentProjectList("1970-02-01", db_name) == ["test_project_number"]
+        assert recent_project_list("1970-02-01", db_name) == ["test_project_number"]
 
-    def test_importDataSql(self):
+    def test_import_data_sql(self):
         db_name = test_path + "test_database\\testdata.sqlite"
         months = 12
-        searchData = ("test_project_number", months)
+        search_data = ("test_project_number", months)
         request = "wipdate, projectNumber, projectname.name, \
                    forecastCostTotal, forecastSaleTotal, \
                    forecastMarginTotal, currentCost, totalCertified, \
                    agreedVariationsNo, budgetVariationsNo, \
                    submittedVariationsNo, agreedVariationsValue, \
                    budgetVariationsValue, submittedVariationsValue"
-        assert importDataSql(searchData, request, db_name) == [
+        assert import_data_sql(search_data, request, db_name) == [
             (
                 "1970-01-01",
                 "test_project_number",
@@ -255,7 +254,7 @@ class TestMultiGraph:
             )
         ]
 
-    def test_deletedatabase(self):
+    def test_delete_database(self):
         # delete the file when finished
         db_name = test_path + "test_database\\testdata.sqlite"
         if os.path.isfile(db_name):
@@ -264,8 +263,8 @@ class TestMultiGraph:
             print(db_name, "does not exist")
         assert os.path.isfile(db_name) is False
 
-    def test_printgraphs(self):
-        printgraphs(
+    def test_print_graphs(self):
+        print_graphs(
             test_path + "test_database\\test.sqlite", test_path + "\\test_graphs\\test_"
         )
         assert (

@@ -2,6 +2,7 @@
 
 # import libraries
 from openpyxl import load_workbook
+from openpyxl.utils.exceptions import InvalidFileException
 import sqlite3
 import os
 import re
@@ -12,264 +13,277 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-# importWIPdata takes information in the form
-# importWIPdata(DATABASE_NAME, importdirectory)
-def importWIPdata(DBNAME, directoryname):
-    global DATABASE_NAME
-    global directory
-    DATABASE_NAME = DBNAME
-    directory = directoryname
-    print("importing from", directoryname, "to", DBNAME)
+# import_wip_data takes information in the form
+# import_wip_data(_database_name, importdirectory)
+def import_wip_data(database_name, directory_name):
+    global _database_name
+    global _directory
+    _database_name = database_name
+    _directory = directory_name
+    print("importing from", directory_name, "to", database_name)
 
-    # first extract the files from the directory
-    filelist = listFiles(os.path.normpath(directory))
+    # first extract the files from the _directory
+    file_list = list_files(os.path.normpath(_directory))
 
     # check the files are wip files
-    wipfiles = checkWipfile(filelist)
+    wip_files = check_wipfile(file_list)
 
     # extract the data from the excel worksheet cells
     # and export it to the sqldatabase
-    for wipfilename in wipfiles:
-        wipData = importData(wipfilename)
-        exportDataSql(wipData, DATABASE_NAME)
+    for wip_filename in wip_files:
+        wip_data = import_data(wip_filename)
+        export_data_sql(wip_data, _database_name)
 
 
-# search through directory to only return excel files
-def listFiles(directory):
+# search through _directory to only return excel files
+def list_files(directory):
     print("searching for files.....")
-    filelist = []
+    file_list = []
     for root, directories, filenames in os.walk(os.path.normpath(directory)):
         for filename in filenames:
-            rawfilename = str(os.path.join(root, filename))
+            raw_filename = str(os.path.join(root, filename))
             # skip temp files beginning with ~
-            if re.search(r"(~.*).*", rawfilename):
+            if re.search(r"(~.*).*", raw_filename):
                 continue
-            # print rawfilename
+            # print raw_filename
             # check if the file is excel, i.e. ends .xlsx
-            if re.search(r"(.*).xls?", rawfilename):
-                # print 'Appending', rawfilename
-                filelist.append(rawfilename)
-    print("found", len(filelist), "files")
-    return filelist
+            if re.search(r"(.*).xls?", raw_filename):
+                # print 'Appending', raw_filename
+                file_list.append(raw_filename)
+    print("found", len(file_list), "files")
+    return file_list
 
 
 # now check that the excel file is a wip file
-def checkWipfile(filelist):
-    filteredfilelist = []
+def check_wipfile(filelist):
+    filtered_filelist = []
     print("filtering files.....")
-    worksheetName = "Executive Summary"
-    projectNameCell = "A5"
-    projectNumberCell = "B6"
+    worksheet_name = "Executive Summary"
+    project_name_cell = "A5"
+    project_number_cell = "B6"
 
     # go through the filelist and check each file
-    for excelfile in filelist:
+    for excel_file in filelist:
         # Try to open the WIP excel file
         try:
-            wipWorkbook = load_workbook(
-                filename=excelfile, read_only=True, data_only=True
+            wip_workbook = load_workbook(
+                filename=excel_file, read_only=True, data_only=True
             )
             # and try to open the worksheet
-            wipWorksheet = wipWorkbook[worksheetName]
-            # print 'checking file', excelfile
-        except:
-            # print excelfile, 'is not a wip file'
+            wip_worksheet = wip_workbook[worksheet_name]
+            # print 'checking file', excel_file
+        except InvalidFileException:
             continue
-        if (wipWorksheet[projectNameCell].value) != "Project Name:":
-            # print excelfile, 'is not a wip file'
+        except BaseException:
             continue
-        elif (wipWorksheet[projectNumberCell].value) is None:
+        if wip_worksheet[project_name_cell].value != "Project Name:":
+            # print excel_file, 'is not a wip file'
+            continue
+        elif wip_worksheet[project_number_cell].value is None:
             continue
         else:
-            filteredfilelist.append(excelfile)
-            # print 'adding', excelfile, 'to wipfile list'
-    print("filtered", len(filelist), "files to", len(filteredfilelist), "files")
-    return filteredfilelist
+            filtered_filelist.append(excel_file)
+            # print 'adding', excel_file, 'to wipfile list'
+    print("filtered", len(filelist), "files to", len(filtered_filelist), "files")
+    return filtered_filelist
 
 
 # function to import wip data from excel file
-def importData(wipfilename):
+def import_data(wip_filename):
 
     # set variables for location of various fields
     # e.g. forecast sale, forecast cost, contribution, cost to date etc
     # excel cell references in the following format
     # variable = (excel row, excel column)
     # we will return the data as a dictionary
-    # with the variable wipData
-    wipData = dict()
+    # with the variable wip_data
+    wip_data = dict()
 
     # header variables
-    worksheetName = "Executive Summary"
-    projectNameRef = "B5"
-    projectNumberRef = "B6"
-    wipDateRef = "B7"
+    worksheet_name = "Executive Summary"
+    project_name_ref = "B5"
+    project_number_ref = "B6"
+    wip_date_ref = "B7"
 
     # columns for this month and Now
-    nowColumn = "C"
-    thisMonthColumn = "F"
+    now_column = "C"
+    this_month_column = "F"
 
     # sales account variables
-    agreedVariationsNoRef = nowColumn + "20"
-    budgetVariationsNoRef = nowColumn + "21"
-    submittedVariationsNoRef = nowColumn + "22"
-    orderValueRef = thisMonthColumn + "18"
-    agreedVariationsValueRef = thisMonthColumn + "20"
-    budgetVariationsValueRef = thisMonthColumn + "21"
-    submittedVariationsValueRef = thisMonthColumn + "22"
+    agreed_variations_no_ref = now_column + "20"
+    budget_variations_no_ref = now_column + "21"
+    submitted_variations_no_ref = now_column + "22"
+    order_value_ref = this_month_column + "18"
+    agreed_variations_value_ref = this_month_column + "20"
+    budget_variations_value_ref = this_month_column + "21"
+    submitted_variations_value_ref = this_month_column + "22"
 
     # Reserve variable
-    reserveAgreedRef = thisMonthColumn + "30"
-    reserveBudgetRef = thisMonthColumn + "31"
-    reserveSubmittedRef = thisMonthColumn + "32"
-    contrachargesRef = thisMonthColumn + "36"
+    reserve_agreed_ref = this_month_column + "30"
+    reserve_budget_ref = this_month_column + "31"
+    reserve_submitted_ref = this_month_column + "32"
+    contracharges_ref = this_month_column + "36"
 
     # cost variables
-    currentCostRef = thisMonthColumn + "43"
-    costToCompleteRef = thisMonthColumn + "44"
-    defectProvisionRef = thisMonthColumn + "48"
+    current_cost_ref = this_month_column + "43"
+    cost_to_complete_ref = this_month_column + "44"
+    defect_provision_ref = this_month_column + "48"
 
     # margin variables
-    contractContributionRef = thisMonthColumn + "55"
-    bettermentsRisksRef = thisMonthColumn + "56"
-    managersViewRef = thisMonthColumn + "57"
+    contract_contribution_ref = this_month_column + "55"
+    betterments_risks_ref = this_month_column + "56"
+    managers_view_ref = this_month_column + "57"
 
     # total variables
-    saleSubtotalRef = thisMonthColumn + "26"
-    reserveSubtotalRef = thisMonthColumn + "34"
-    forecastSaleTotalRef = thisMonthColumn + "38"
-    variationsNoTotalRef = nowColumn + "24"
-    forecastCostTotalRef = thisMonthColumn + "50"
-    forecastMarginTotalRef = thisMonthColumn + "59"
+    sale_subtotal_ref = this_month_column + "26"
+    # reserve_subtotal_ref = this_month_column + "34"
+    forecast_sale_total_ref = this_month_column + "38"
+    variations_no_total_ref = now_column + "24"
+    forecast_cost_total_ref = this_month_column + "50"
+    forecast_margin_total_ref = this_month_column + "59"
 
     # cash recovery variables
-    latestApplicationRef = thisMonthColumn + "67"
-    totalCertifiedRef = thisMonthColumn + "72"
+    latest_application_ref = this_month_column + "67"
+    total_certified_ref = this_month_column + "72"
 
     # Extract the data from the WIP excel spreadsheet and set variables
 
     # Try to open the WIP excel file
     try:
-        wipWorkbook = load_workbook(
-            filename=wipfilename, read_only=True, data_only=True
+        wip_workbook = load_workbook(
+            filename=wip_filename, read_only=True, data_only=True
         )
         # and try to open the worksheet
-        wipWorksheet = wipWorkbook[worksheetName]
-        print("Opening workbook", worksheetName, "in", wipfilename)
-    except:
-        print(wipfilename, " does not exist, exiting")
+        print("Opening workbook", worksheet_name, "in", wip_filename)
+    except FileNotFoundError:
+        print(wip_filename, " does not exist, exiting")
         quit()
 
     # extract the cell information
-    # using the format wipData['field'] = wipWorksheet([fieldRef].value)
-    wipData["projectName"] = wipWorksheet[projectNameRef].value
-    wipData["projectNumber"] = wipWorksheet[projectNumberRef].value
-    wipData["wipDate"] = str(wipWorksheet[wipDateRef].value)
-    wipData["wipDate"] = (wipData["wipDate"].rsplit(" "))[0]
-    wipDateFormatted = wipData["wipDate"]
+    # using the format wip_data['field'] = wip_worksheet([fieldRef].value)
+    wip_worksheet = wip_workbook[worksheet_name]
+    wip_data["projectName"] = wip_worksheet[project_name_ref].value
+    wip_data["projectNumber"] = wip_worksheet[project_number_ref].value
+    wip_data["wipDate"] = str(wip_worksheet[wip_date_ref].value)
+    wip_data["wipDate"] = (wip_data["wipDate"].rsplit(" "))[0]
+    wip_date_formatted = wip_data["wipDate"]
     print(
         "Extracting",
-        wipData["projectNumber"],
+        wip_data["projectNumber"],
         "-",
-        wipData["projectName"],
+        wip_data["projectName"],
         "data for",
-        wipDateFormatted,
+        wip_date_formatted,
         "\n",
     )
 
     # extract variation information
-    wipData["agreedVariationsNo"] = int(wipWorksheet[agreedVariationsNoRef].value)
-    wipData["budgetVariationsNo"] = int(wipWorksheet[budgetVariationsNoRef].value)
-    wipData["submittedVariationsNo"] = int(wipWorksheet[submittedVariationsNoRef].value)
-    wipData["variationsNoTotal"] = int(wipWorksheet[variationsNoTotalRef].value)
-    variationsNoTotalCheck = (
-        wipData["agreedVariationsNo"]
-        + wipData["budgetVariationsNo"]
-        + wipData["submittedVariationsNo"]
+    wip_data["agreedVariationsNo"] = int(wip_worksheet[agreed_variations_no_ref].value)
+    wip_data["budgetVariationsNo"] = int(wip_worksheet[budget_variations_no_ref].value)
+    wip_data["submittedVariationsNo"] = int(
+        wip_worksheet[submitted_variations_no_ref].value
+    )
+    wip_data["variationsNoTotal"] = int(wip_worksheet[variations_no_total_ref].value)
+    variations_no_total_check = (
+        wip_data["agreedVariationsNo"]
+        + wip_data["budgetVariationsNo"]
+        + wip_data["submittedVariationsNo"]
     )
     # check variations no balance
-    if wipData["variationsNoTotal"] != variationsNoTotalCheck:
+    if wip_data["variationsNoTotal"] != variations_no_total_check:
         print("Number of variations incorrect")
         quit()
     else:
         print("Variations.....okay")
 
     # extract sales information
-    wipData["orderValue"] = int(wipWorksheet[orderValueRef].value)
-    wipData["agreedVariationsValue"] = int(wipWorksheet[agreedVariationsValueRef].value)
-    wipData["budgetVariationsValue"] = int(wipWorksheet[budgetVariationsValueRef].value)
-    wipData["submittedVariationsValue"] = int(
-        wipWorksheet[submittedVariationsValueRef].value
+    wip_data["orderValue"] = int(wip_worksheet[order_value_ref].value)
+    wip_data["agreedVariationsValue"] = int(
+        wip_worksheet[agreed_variations_value_ref].value
     )
-    wipData["saleSubtotal"] = int(wipWorksheet[saleSubtotalRef].value)
-    saleSubtotalCheck = (
-        wipData["orderValue"]
-        + wipData["agreedVariationsValue"]
-        + wipData["budgetVariationsValue"]
-        + wipData["submittedVariationsValue"]
+    wip_data["budgetVariationsValue"] = int(
+        wip_worksheet[budget_variations_value_ref].value
+    )
+    wip_data["submittedVariationsValue"] = int(
+        wip_worksheet[submitted_variations_value_ref].value
+    )
+    wip_data["saleSubtotal"] = int(wip_worksheet[sale_subtotal_ref].value)
+    sale_subtotal_check = (
+        wip_data["orderValue"]
+        + wip_data["agreedVariationsValue"]
+        + wip_data["budgetVariationsValue"]
+        + wip_data["submittedVariationsValue"]
     )
     # check sales values balance
-    if abs(saleSubtotalCheck - wipData["saleSubtotal"]) > 5:
+    if abs(sale_subtotal_check - wip_data["saleSubtotal"]) > 5:
         print("Sales value incorrect")
         quit()
     else:
         print("Sales.....okay")
 
     # extract reserve information
-    wipData["reserveAgreed"] = int(wipWorksheet[reserveAgreedRef].value)
-    wipData["reserveBudget"] = int(wipWorksheet[reserveBudgetRef].value)
-    wipData["reserveSubmitted"] = int(wipWorksheet[reserveSubmittedRef].value)
-    wipData["contracharges"] = int(wipWorksheet[contrachargesRef].value)
-    wipData["forecastSaleTotal"] = int(wipWorksheet[forecastSaleTotalRef].value)
-    sumChecksale = (
-        wipData["orderValue"]
-        + wipData["agreedVariationsValue"]
-        + wipData["budgetVariationsValue"]
-        + wipData["submittedVariationsValue"]
-        + wipData["reserveAgreed"]
-        + wipData["reserveBudget"]
-        + wipData["reserveSubmitted"]
-        + wipData["contracharges"]
+    wip_data["reserveAgreed"] = int(wip_worksheet[reserve_agreed_ref].value)
+    wip_data["reserveBudget"] = int(wip_worksheet[reserve_budget_ref].value)
+    wip_data["reserveSubmitted"] = int(wip_worksheet[reserve_submitted_ref].value)
+    wip_data["contracharges"] = int(wip_worksheet[contracharges_ref].value)
+    wip_data["forecastSaleTotal"] = int(wip_worksheet[forecast_sale_total_ref].value)
+    sum_checksale = (
+        wip_data["orderValue"]
+        + wip_data["agreedVariationsValue"]
+        + wip_data["budgetVariationsValue"]
+        + wip_data["submittedVariationsValue"]
+        + wip_data["reserveAgreed"]
+        + wip_data["reserveBudget"]
+        + wip_data["reserveSubmitted"]
+        + wip_data["contracharges"]
     )
-    if abs(sumChecksale - wipData["forecastSaleTotal"]) > 5:
+    if abs(sum_checksale - wip_data["forecastSaleTotal"]) > 5:
         print("Forecast sale subtotal incorrect")
         quit()
     else:
         print("Forecast sale.....okay")
 
     # extract cost information
-    wipData["currentCost"] = int(wipWorksheet[currentCostRef].value)
-    wipData["costToComplete"] = int(wipWorksheet[costToCompleteRef].value)
+    wip_data["currentCost"] = int(wip_worksheet[current_cost_ref].value)
+    wip_data["costToComplete"] = int(wip_worksheet[cost_to_complete_ref].value)
     try:
-        wipData["defectProvision"] = int(wipWorksheet[defectProvisionRef].value)
+        wip_data["defectProvision"] = int(wip_worksheet[defect_provision_ref].value)
     except TypeError:
-        wipData["defectProvision"] = 0
-    wipData["forecastCostTotal"] = int(wipWorksheet[forecastCostTotalRef].value)
-    sumCheckcost = (
-        wipData["currentCost"] + wipData["costToComplete"] + wipData["defectProvision"]
+        wip_data["defectProvision"] = 0
+    wip_data["forecastCostTotal"] = int(wip_worksheet[forecast_cost_total_ref].value)
+    sum_check_cost = (
+        wip_data["currentCost"]
+        + wip_data["costToComplete"]
+        + wip_data["defectProvision"]
     )
-    if abs(sumCheckcost - wipData["forecastCostTotal"]) > 5:
+    if abs(sum_check_cost - wip_data["forecastCostTotal"]) > 5:
         print("Forecast cost subtotal incorrect")
         quit()
     else:
         print("Forecast cost.....okay")
 
     # extract margin information
-    wipData["contractContribution"] = int(wipWorksheet[contractContributionRef].value)
-    wipData["bettermentsRisks"] = int(wipWorksheet[bettermentsRisksRef].value)
+    wip_data["contractContribution"] = int(
+        wip_worksheet[contract_contribution_ref].value
+    )
+    wip_data["bettermentsRisks"] = int(wip_worksheet[betterments_risks_ref].value)
 
     # check if the managersView is blank and would cause an error
     # if true add a 0
     try:
-        wipData["managersView"] = int(wipWorksheet[managersViewRef].value)
-    except:
-        wipData["managersView"] = 0
+        wip_data["managersView"] = int(wip_worksheet[managers_view_ref].value)
+    except ValueError:
+        wip_data["managersView"] = 0
 
-    wipData["forecastMarginTotal"] = int(wipWorksheet[forecastMarginTotalRef].value)
-    sumCheckmargin = (
-        wipData["contractContribution"]
-        + wipData["bettermentsRisks"]
-        + wipData["managersView"]
+    wip_data["forecastMarginTotal"] = int(
+        wip_worksheet[forecast_margin_total_ref].value
     )
-    if abs(sumCheckmargin - wipData["forecastMarginTotal"]) > 5:
+    sum_check_margin = (
+        wip_data["contractContribution"]
+        + wip_data["bettermentsRisks"]
+        + wip_data["managersView"]
+    )
+    if abs(sum_check_margin - wip_data["forecastMarginTotal"]) > 5:
         print("Forecast margin subtotal incorrect")
         quit()
     else:
@@ -278,23 +292,23 @@ def importData(wipfilename):
     # extract cash information
     # if the field is blank insert a 0
     try:
-        wipData["latestApplication"] = int(wipWorksheet[latestApplicationRef].value)
-    except:
-        wipData["latestApplication"] = 0
+        wip_data["latestApplication"] = int(wip_worksheet[latest_application_ref].value)
+    except ValueError:
+        wip_data["latestApplication"] = 0
     try:
-        wipData["totalCertified"] = int(wipWorksheet[totalCertifiedRef].value)
-    except:
-        wipData["totalCertified"] = 0
+        wip_data["totalCertified"] = int(wip_worksheet[total_certified_ref].value)
+    except ValueError:
+        wip_data["totalCertified"] = 0
 
     print("All data imported sucessfully\n")
-    return wipData
+    return wip_data
 
 
 # function to import data into an SQL database
-def exportDataSql(dataList, database):
-    # print dataList
-    projectName = dataList["projectName"]
-    wipDate = dataList["wipDate"]
+def export_data_sql(data_list, database):
+    # print data_list
+    project_name = data_list["projectName"]
+    # wip_date = data_list["wipDate"]
     conn = sqlite3.connect(os.path.normpath(database))
     cur = conn.cursor()
 
@@ -333,11 +347,11 @@ def exportDataSql(dataList, database):
     cur.execute(
         """INSERT OR IGNORE INTO projectname (name)
         VALUES ( ? )""",
-        (projectName,),
+        (project_name,),
     )
-    cur.execute("SELECT id FROM projectname WHERE name = ?", (projectName,))
-    projectName_id = cur.fetchone()[0]
-    dataList["projectName"] = projectName_id
+    cur.execute("SELECT id FROM projectname WHERE name = ?", (project_name,))
+    project_name_id = cur.fetchone()[0]
+    data_list["projectName"] = project_name_id
 
     # run through the data and allocate to each field
     cur.executemany(
@@ -361,7 +375,7 @@ def exportDataSql(dataList, database):
         :defectProvision, :forecastCostTotal, :contractContribution,
         :bettermentsRisks, :managersView, :forecastMarginTotal,
         :latestApplication, :totalCertified)""",
-        [dataList],
+        [data_list],
     )
 
     # Commit the changes to the database
