@@ -10,24 +10,24 @@ import os
 
 
 # main routine
-def print_graphs(dbname, directory):
-    global _database_name
+def print_graphs(database_name, directory):
+    # global _database_name
     global output_directory
-    _database_name = dbname
+    # _database_name = dbname
     output_directory = directory
-    plot_graphs()
+    plot_graphs(database_name)
 
 
 # function to plot graphs - primary function
-def plot_graphs():
+def plot_graphs(database_name):
 
     months_to_plot = "12"
 
     # extract the most recent wip date from the database
-    recent_wip_date = most_recent_wip(_database_name)
+    recent_wip_date = most_recent_wip(database_name)
 
     # extract the project_list based on the most recent wip date
-    project_list = recent_project_list(recent_wip_date, _database_name)
+    project_list = recent_project_list(recent_wip_date, database_name)
 
     # iterate through the project_list and plot graphs to each project
     sucessful = 0
@@ -41,7 +41,7 @@ def plot_graphs():
             request = "wipdate, projectNumber, projectname.name, \
                        forecastCostTotal, forecastSaleTotal, \
                        forecastMarginTotal, currentCost, totalCertified"
-            graph_data = import_data_sql(search_data, request, _database_name)
+            graph_data = import_data_sql(search_data, request, database_name)
             plot_forecast_graph(graph_data)
 
             # plot the variation histogram
@@ -49,7 +49,7 @@ def plot_graphs():
                        agreedVariationsNo, budgetVariationsNo, \
                        submittedVariationsNo, agreedVariationsValue, \
                        budgetVariationsValue, submittedVariationsValue"
-            graph_data = import_data_sql(search_data, request, _database_name)
+            graph_data = import_data_sql(search_data, request, database_name)
             plot_variation_graph(graph_data)
             sucessful += 1
 
