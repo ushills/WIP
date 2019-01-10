@@ -10,16 +10,12 @@ import os
 
 
 # main routine
-def print_graphs(database_name, directory):
-    # global _database_name
-    global output_directory
-    # _database_name = dbname
-    output_directory = directory
-    plot_graphs(database_name)
+def print_graphs(database_name, output_directory):
+    plot_graphs(database_name, output_directory)
 
 
 # function to plot graphs - primary function
-def plot_graphs(database_name):
+def plot_graphs(database_name, output_directory):
 
     months_to_plot = "12"
 
