@@ -14,16 +14,12 @@ warnings.filterwarnings("ignore")
 
 
 # import_wip_data takes information in the form
-# import_wip_data(_database_name, importdirectory)
+# import_wip_data(database_name, importdirectory)
 def import_wip_data(database_name, directory_name):
-    global _database_name
-    global _directory
-    _database_name = database_name
-    _directory = directory_name
     print("importing from", directory_name, "to", database_name)
 
     # first extract the files from the _directory
-    file_list = list_files(os.path.normpath(_directory))
+    file_list = list_files(os.path.normpath(directory_name))
 
     # check the files are wip files
     wip_files = check_wipfile(file_list)
@@ -32,7 +28,7 @@ def import_wip_data(database_name, directory_name):
     # and export it to the sqldatabase
     for wip_filename in wip_files:
         wip_data = import_data(wip_filename)
-        export_data_sql(wip_data, _database_name)
+        export_data_sql(wip_data, database_name)
 
 
 # search through _directory to only return excel files
