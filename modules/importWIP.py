@@ -4,6 +4,7 @@
 from openpyxl import load_workbook
 from openpyxl.utils.exceptions import InvalidFileException
 from colorama import init, Fore
+
 # initialise colorama
 init()
 import sqlite3
@@ -177,6 +178,21 @@ def import_data(wip_filename):
         wip_date_formatted,
         "\n",
     )
+
+    # check that the date is not None
+    try:
+        assert wip_data["wipDate"] != "None", (
+            wip_filename
+            + " contains an incorrect date format of None\nPlease correct and retry"
+        )
+        print("Date...........okay")
+    except AssertionError as e:
+        print(Fore.RED)
+        print("-" * 80)
+        print("FATAL...\n", e)
+        print("-" * 80)
+        print(Fore.RESET)
+        quit()
 
     # extract variation information
     wip_data["agreedVariationsNo"] = int(wip_worksheet[agreed_variations_no_ref].value)

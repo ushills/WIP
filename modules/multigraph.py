@@ -6,7 +6,8 @@ import sqlite3
 import matplotlib.pyplot as plt
 from matplotlib.dates import MonthLocator, DateFormatter
 from colorama import init, Fore
-#initialise colorama
+
+# initialise colorama
 init()
 import datetime
 import os
