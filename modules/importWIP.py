@@ -268,8 +268,10 @@ def import_data(wip_filename):
     # if true add a 0
     try:
         wip_data["managersView"] = int(wip_worksheet[managers_view_ref].value)
-    except ValueError:
+    except TypeError:
         wip_data["managersView"] = 0
+    # except ValueError:
+    #     wip_data["managersView"] = 0
 
     wip_data["forecastMarginTotal"] = int(
         wip_worksheet[forecast_margin_total_ref].value
@@ -289,11 +291,11 @@ def import_data(wip_filename):
     # if the field is blank insert a 0
     try:
         wip_data["latestApplication"] = int(wip_worksheet[latest_application_ref].value)
-    except ValueError:
+    except TypeError:
         wip_data["latestApplication"] = 0
     try:
         wip_data["totalCertified"] = int(wip_worksheet[total_certified_ref].value)
-    except ValueError:
+    except TypeError:
         wip_data["totalCertified"] = 0
 
     print("All data imported sucessfully\n")
