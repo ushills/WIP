@@ -3,6 +3,7 @@
 # import libraries
 from openpyxl import load_workbook
 from openpyxl.utils.exceptions import InvalidFileException
+from colorama import init, Fore
 import sqlite3
 import os
 import re
@@ -152,7 +153,9 @@ def import_data(wip_filename):
         # and try to open the worksheet
         print("Opening workbook", worksheet_name, "in", wip_filename)
     except FileNotFoundError:
+        print(Fore.RED)
         print(wip_filename, " does not exist, exiting")
+        print(Fore.RESET)
         quit()
 
     # extract the cell information
@@ -187,7 +190,9 @@ def import_data(wip_filename):
     )
     # check variations no balance
     if wip_data["variationsNoTotal"] != variations_no_total_check:
+        print(Fore.RED)
         print("Number of variations incorrect")
+        print(Fore.RESET)
         quit()
     else:
         print("Variations.....okay")
@@ -212,7 +217,9 @@ def import_data(wip_filename):
     )
     # check sales values balance
     if abs(sale_subtotal_check - wip_data["saleSubtotal"]) > 5:
+        print(Fore.RED)
         print("Sales value incorrect")
+        print(Fore.RESET)
         quit()
     else:
         print("Sales.....okay")
@@ -234,7 +241,9 @@ def import_data(wip_filename):
         + wip_data["contracharges"]
     )
     if abs(sum_checksale - wip_data["forecastSaleTotal"]) > 5:
+        print(Fore.RED)
         print("Forecast sale subtotal incorrect")
+        print(Fore.RESET)
         quit()
     else:
         print("Forecast sale.....okay")
@@ -253,7 +262,9 @@ def import_data(wip_filename):
         + wip_data["defectProvision"]
     )
     if abs(sum_check_cost - wip_data["forecastCostTotal"]) > 5:
+        print(Fore.RED)
         print("Forecast cost subtotal incorrect")
+        print(Fore.RESET)
         quit()
     else:
         print("Forecast cost.....okay")
@@ -282,7 +293,9 @@ def import_data(wip_filename):
         + wip_data["managersView"]
     )
     if abs(sum_check_margin - wip_data["forecastMarginTotal"]) > 5:
+        print(Fore.RED)
         print("Forecast margin subtotal incorrect")
+        print(Fore.RESET)
         quit()
     else:
         print("Forecast margin.....okay")
@@ -298,7 +311,9 @@ def import_data(wip_filename):
     except TypeError:
         wip_data["totalCertified"] = 0
 
+    print(Fore.GREEN)
     print("All data imported sucessfully\n")
+    print(Fore.RESET)
     return wip_data
 
 

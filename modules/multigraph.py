@@ -5,6 +5,8 @@
 import sqlite3
 import matplotlib.pyplot as plt
 from matplotlib.dates import MonthLocator, DateFormatter
+from colorama import init, Fore
+init()
 import datetime
 import os
 
@@ -48,15 +50,19 @@ def plot_graphs(database_name, output_directory):
             sucessful += 1
 
         except Exception as e:
+            print(Fore.RED)
             print("skipping", search_data[0], "data incorrect")
             print("Exception error", e)
             print("-" * 25)
+            print(Fore.RESET)
             failed += 1
             continue
 
-    print("printed", sucessful, "project graphs")
+    print(Fore.WHITE)
+    print("printed", sucessful, "project graphs", Fore.RESET)
     if failed > 0:
-        print(failed, "projects failed to print")
+        print(Fore.RED)
+        print(failed, "projects failed to print", Fore.RESET)
 
 
 # function to extract date of most recent wip in database
@@ -66,8 +72,10 @@ def most_recent_wip(database):
     try:
         conn = sqlite3.connect(os.path.normpath(database))
     except NameError:
+        print(Fore.RED)
         print("Database file", database, "does not exist")
         print("Failed in most_recent_wip")
+        print(Fore.RESET)
     else:
         cur = conn.cursor()
         # extract the most recent wipdate
@@ -86,7 +94,9 @@ def most_recent_wip(database):
                 database + "contains an incorrect date format of None"
             )
         except AssertionError as e:
+            print(Fore.RED)
             print("FATAL", e)
+            print(Fore.RESET)
             pass
 
         return latest_date
@@ -100,8 +110,10 @@ def recent_project_list(search_date, database):
     try:
         conn = sqlite3.connect(os.path.normpath(database))
     except NameError:
+        print(Fore.RED)
         print("Database file", database, "does not exist")
         print("Failed in recent_project_list")
+        print(Fore.RESET)
     else:
         cur = conn.cursor()
 
