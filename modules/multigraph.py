@@ -81,6 +81,14 @@ def most_recent_wip(database):
         # extract the latest_date string from the list returned
         latest_date = str(latest_date[0])
 
+        try:
+            assert latest_date != "None", (
+                database + "contains an incorrect date format of None"
+            )
+        except AssertionError as e:
+            print("FATAL", e)
+            pass
+
         return latest_date
 
 
@@ -546,3 +554,7 @@ def plot_variation_graph(graph_data, output_directory):
         bbox_inches="tight",
     )
     plt.close("all")
+
+
+if __name__ == "__main__":
+    plot_graphs("./../london/londonwipdata.sqlite", "./../london/graphs/")
