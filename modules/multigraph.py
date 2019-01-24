@@ -31,14 +31,12 @@ def plot_graphs(database_name, output_directory):
     for project in project_list:
         try:
             search_data = (project, months_to_plot)
-            # print 'plotting graphs for', search_data[0]
-
             # plot the Forecast Data graph
             request = "wipdate, projectNumber, projectname.name, \
                        forecastCostTotal, forecastSaleTotal, \
                        forecastMarginTotal, currentCost, totalCertified"
             graph_data = import_data_sql(search_data, request, database_name)
-            plot_forecast_graph(graph_data)
+            plot_forecast_graph(graph_data, output_directory)
 
             # plot the variation histogram
             request = "wipdate, projectNumber, projectname.name, \
@@ -46,11 +44,12 @@ def plot_graphs(database_name, output_directory):
                        submittedVariationsNo, agreedVariationsValue, \
                        budgetVariationsValue, submittedVariationsValue"
             graph_data = import_data_sql(search_data, request, database_name)
-            plot_variation_graph(graph_data)
+            plot_variation_graph(graph_data, output_directory)
             sucessful += 1
 
-        except BaseException:
+        except Exception as e:
             print("skipping", search_data[0], "data incorrect")
+            print("Exception error", e)
             print("-" * 25)
             failed += 1
             continue
@@ -146,7 +145,7 @@ def import_data_sql(search_data, request, database):
 
 
 # function to produce and output forecast graph
-def plot_forecast_graph(graph_data):
+def plot_forecast_graph(graph_data, output_directory):
 
     # Set the common variables
 
@@ -337,7 +336,7 @@ def plot_forecast_graph(graph_data):
 
 
 # function to produce and output variation graph
-def plot_variation_graph(graph_data):
+def plot_variation_graph(graph_data, output_directory):
 
     # Set the common variables
 
