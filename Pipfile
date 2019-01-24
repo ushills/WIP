@@ -9,6 +9,7 @@ verify_ssl = true
 openpyxl = "*"
 pytest = "*"
 matplotlib = "==2.*"
+colorama = "*"
 
 [requires]
 python_version = "3.7"

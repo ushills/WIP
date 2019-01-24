@@ -1,19 +1,19 @@
 # import WIP data from WIP file
 
 # import libraries
+import sqlite3
+import os
+import re
+
+import warnings
 from openpyxl import load_workbook
 from openpyxl.utils.exceptions import InvalidFileException
 from colorama import init, Fore
 
 # initialise colorama
 init()
-import sqlite3
-import os
-import re
 
 # supress warnings
-import warnings
-
 warnings.filterwarnings("ignore")
 
 
@@ -74,7 +74,8 @@ def check_wipfile(filelist):
             # print 'checking file', excel_file
         except InvalidFileException:
             continue
-        except BaseException:
+        except Exception as e:
+            print(e)
             continue
         if wip_worksheet[project_name_cell].value != "Project Name:":
             # print excel_file, 'is not a wip file'

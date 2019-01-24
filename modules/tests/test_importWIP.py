@@ -2,8 +2,6 @@
 import os
 import sqlite3
 
-test_path = "modules\\tests\\"
-
 from modules.importWIP import (
     list_files,
     check_wipfile,
@@ -17,6 +15,8 @@ from modules.multigraph import (
     import_data_sql,
     print_graphs,
 )
+
+test_path = "modules\\tests\\"
 
 
 class TestImportWIP:
