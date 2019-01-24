@@ -4,6 +4,8 @@
 from openpyxl import load_workbook
 from openpyxl.utils.exceptions import InvalidFileException
 from colorama import init, Fore
+# initialise colorama
+init()
 import sqlite3
 import os
 import re
