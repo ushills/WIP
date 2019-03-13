@@ -349,36 +349,33 @@ def export_data_sql(data_list, database):
 
     # create job name table
     cur.execute(
-        """
-        CREATE TABLE IF NOT EXISTS projectname (
-        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-        name TEXT UNIQUE
-        )"""
+        'CREATE TABLE IF NOT EXISTS projectname ('
+        'id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,'
+        'name TEXT UNIQUE)'
     )
 
     # create wipdata table if doesn't exist
     cur.execute(
-        """
-    CREATE TABLE IF NOT EXISTS wipdata (
-        projectNumber TEXT, projectName INTEGER, wipDate TEXT,
-        agreedVariationsNo INTEGER, budgetVariationsNo INTEGER,
-        submittedVariationsNo INTEGER, variationsNoTotal INTEGER,
-        orderValue INTEGER, agreedVariationsValue INTEGER,
-        budgetVariationsValue INTEGER, submittedVariationsValue INTEGER,
-        saleSubtotal INTEGER, reserveAgreed INTEGER, reserveBudget INTEGER,
-        reserveSubmitted INTEGER, contracharges INTEGER,
-        forecastSaleTotal INTEGER, currentCost INTEGER, costToComplete INTEGER,
-        defectProvision INTEGER, forecastCostTotal INTEGER,
-        contractContribution INTEGER, bettermentsRisks INTEGER,
-        managersView INTEGER, forecastMarginTotal INTEGER,
-        latestApplication INTEGER, totalCertified INTEGER,
-        PRIMARY KEY (projectNumber, wipDate));"""
+        'CREATE TABLE IF NOT EXISTS wipdata ('
+        'projectNumber TEXT, projectName INTEGER, wipDate TEXT,'
+        'agreedVariationsNo INTEGER, budgetVariationsNo INTEGER,'
+        'submittedVariationsNo INTEGER, variationsNoTotal INTEGER,'
+        'orderValue INTEGER, agreedVariationsValue INTEGER,'
+        'budgetVariationsValue INTEGER, submittedVariationsValue INTEGER,'
+        'saleSubtotal INTEGER, reserveAgreed INTEGER, reserveBudget INTEGER,'
+        'reserveSubmitted INTEGER, contracharges INTEGER,'
+        'forecastSaleTotal INTEGER, currentCost INTEGER, costToComplete INTEGER,'
+        'defectProvision INTEGER, forecastCostTotal INTEGER,'
+        'contractContribution INTEGER, bettermentsRisks INTEGER,'
+        'managersView INTEGER, forecastMarginTotal INTEGER,'
+        'latestApplication INTEGER, totalCertified INTEGER,'
+        'PRIMARY KEY (projectNumber, wipDate));'
     )
 
     # check if the project name exists in the table project name
     cur.execute(
-        """INSERT OR IGNORE INTO projectname (name)
-        VALUES ( ? )""",
+        'INSERT OR IGNORE INTO projectname (name) '
+        'VALUES ( ? )',
         (project_name,),
     )
     cur.execute("SELECT id FROM projectname WHERE name = ?", (project_name,))
@@ -387,26 +384,26 @@ def export_data_sql(data_list, database):
 
     # run through the data and allocate to each field
     cur.executemany(
-        """INSERT OR REPLACE INTO wipdata
-        (projectNumber, projectName, wipDate, agreedVariationsNo,
-        budgetVariationsNo, submittedVariationsNo, variationsNoTotal,
-        orderValue, agreedVariationsValue, budgetVariationsValue,
-        submittedVariationsValue, saleSubtotal, reserveAgreed,
-        reserveBudget, reserveSubmitted, contracharges,
-        forecastSaleTotal, currentCost, costToComplete,
-        defectProvision, forecastCostTotal, contractContribution,
-        bettermentsRisks, managersView, forecastMarginTotal,
-        latestApplication, totalCertified)
-    VALUES
-        (:projectNumber, :projectName, :wipDate, :agreedVariationsNo,
-        :budgetVariationsNo, :submittedVariationsNo, :variationsNoTotal,
-        :orderValue, :agreedVariationsValue, :budgetVariationsValue,
-        :submittedVariationsValue, :saleSubtotal, :reserveAgreed,
-        :reserveBudget, :reserveSubmitted, :contracharges,
-        :forecastSaleTotal, :currentCost, :costToComplete,
-        :defectProvision, :forecastCostTotal, :contractContribution,
-        :bettermentsRisks, :managersView, :forecastMarginTotal,
-        :latestApplication, :totalCertified)""",
+        'INSERT OR REPLACE INTO wipdata '
+        '(projectNumber, projectName, wipDate, agreedVariationsNo,'
+        'budgetVariationsNo, submittedVariationsNo, variationsNoTotal,'
+        'orderValue, agreedVariationsValue, budgetVariationsValue,'
+        'submittedVariationsValue, saleSubtotal, reserveAgreed,'
+        'reserveBudget, reserveSubmitted, contracharges,'
+        'forecastSaleTotal, currentCost, costToComplete,'
+        'defectProvision, forecastCostTotal, contractContribution,'
+        'bettermentsRisks, managersView, forecastMarginTotal,'
+        'latestApplication, totalCertified)'
+    'VALUES ('
+        ':projectNumber, :projectName, :wipDate, :agreedVariationsNo,'
+        ':budgetVariationsNo, :submittedVariationsNo, :variationsNoTotal,'
+        ':orderValue, :agreedVariationsValue, :budgetVariationsValue,'
+        ':submittedVariationsValue, :saleSubtotal, :reserveAgreed,'
+        ':reserveBudget, :reserveSubmitted, :contracharges,'
+        ':forecastSaleTotal, :currentCost, :costToComplete,'
+        ':defectProvision, :forecastCostTotal, :contractContribution,'
+        ':bettermentsRisks, :managersView, :forecastMarginTotal,'
+        ':latestApplication, :totalCertified)',
         [data_list],
     )
 

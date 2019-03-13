@@ -52,3 +52,4 @@ Thumbs.db
 # Python files #
 /__pycache__
 *.pyc
+.vscode/settings.json
