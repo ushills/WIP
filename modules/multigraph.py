@@ -165,7 +165,7 @@ def import_data_sql(search_data, request, database):
     JOIN projectName
     ON wipdata.projectName = projectname.id
     WHERE projectNumber = :projectNumber
-    AND forecastSaleTotal > 0
+    AND forecastCostTotal > 0
     ORDER BY wipdate DESC
     LIMIT :months)
     ORDER BY wipdate ASC
