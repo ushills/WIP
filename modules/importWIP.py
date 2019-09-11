@@ -4,6 +4,7 @@
 import sqlite3
 import os
 import re
+from pathlib import Path, PureWindowsPath
 
 import warnings
 from openpyxl import load_workbook
@@ -39,17 +40,19 @@ def import_wip_data(database_name, directory_name):
 def list_files(directory):
     print("searching for files.....")
     file_list = []
-    for root, directories, filenames in os.walk(os.path.normpath(directory)):
-        for filename in filenames:
-            raw_filename = str(os.path.join(root, filename))
-            # skip temp files beginning with ~
-            if re.search(r"(~.*).*", raw_filename):
-                continue
-            # print raw_filename
-            # check if the file is excel, i.e. ends .xlsx
-            if re.search(r"(.*).xls?", raw_filename):
-                # print 'Appending', raw_filename
-                file_list.append(raw_filename)
+    # for root, directories, filenames in os.walk(os.path.normpath(directory)):
+    #     for filename in filenames:
+    #         raw_filename = str(os.path.join(root, filename))
+    #         # skip temp files beginning with ~
+    #         if re.search(r"(~.*).*", raw_filename):
+    #             continue
+    #         # print raw_filename
+    #         # check if the file is excel, i.e. ends .xlsx
+    #         if re.search(r"(.*).xls?", raw_filename):
+    #             # print 'Appending', raw_filename
+    #             file_list.append(raw_filename)
+    p = Path(directory)
+    file_list = list(p.glob("**/[!~]*.xls*"))
     print("found", len(file_list), "files")
     return file_list
 

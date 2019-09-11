@@ -1,6 +1,7 @@
 # import pytest
 import os
 import sqlite3
+from pathlib import WindowsPath
 
 from modules.importWIP import (
     list_files,
@@ -16,21 +17,21 @@ from modules.multigraph import (
     print_graphs,
 )
 
-test_path = "modules\\tests\\"
+test_path = "modules/tests/"
 
 
 class TestImportWIP:
     def test_list_files(self):
-        filelist = list_files(test_path + "test_listfiles\\")
+        filelist = list_files(test_path + "test_listfiles/")
         print(filelist)
         assert len(filelist) == 4
-        assert test_path + "test_listfiles\\not_excel.txt" not in filelist
-        assert test_path + "test_listfiles\\test1.xls" in filelist
-        assert test_path + "test_listfiles\\test2.xlsx" in filelist
-        assert test_path + "test_listfiles\\WIP_file.xlsx" in filelist
-        assert test_path + "test_listfiles\\not_WIP_file.xlsx" in filelist
+        assert WindowsPath(test_path + "test_listfiles/not_excel.txt") not in filelist
+        assert WindowsPath(test_path + "test_listfiles/test1.xls") in filelist
+        assert WindowsPath(test_path + "test_listfiles/test2.xlsx") in filelist
+        assert WindowsPath(test_path + "test_listfiles/WIP_file.xlsx") in filelist
+        assert WindowsPath(test_path + "test_listfiles/not_WIP_file.xlsx") in filelist
         # check temp files beginning with ~ are not included
-        assert test_path + "test_listfiles\\~WIP_file.xlsx" not in filelist
+        assert WindowsPath(test_path + "test_listfiles/~WIP_file.xlsx") not in filelist
 
     def test_check_wipfile(self):
         # test that only wip files are returned
