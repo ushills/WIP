@@ -54,3 +54,4 @@ Thumbs.db
 *.pyc
 .vscode/settings.json
 .pytest_cache
+*.ipynb

@@ -24,7 +24,7 @@ def import_wip_data(database_name, directory_name):
     print("importing from", directory_name, "to", database_name)
 
     # first extract the files from the _directory
-    file_list = list_files(os.path.normpath(directory_name))
+    file_list = list_files(directory_name)
 
     # check the files are wip files
     wip_files = check_wipfile(file_list)
