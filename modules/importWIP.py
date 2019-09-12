@@ -2,9 +2,8 @@
 
 # import libraries
 import sqlite3
-import os
 import re
-from pathlib import Path, PureWindowsPath
+from pathlib import Path
 
 import warnings
 from openpyxl import load_workbook
@@ -40,7 +39,7 @@ def import_wip_data(database_name, directory_name):
 def list_files(directory):
     print("searching for files.....")
     p = Path(directory)
-    file_list = list(p.glob("**/[!~]*.xls*"))
+    file_list = list(p.rglob("[!~]*.xls*"))
     print("found", len(file_list), "files")
     return file_list
 
