@@ -1,7 +1,7 @@
 # import pytest
 import os
 import sqlite3
-from pathlib import Path, WindowsPath
+from pathlib import Path, Path
 
 from modules.importWIP import (
     list_files,
@@ -22,34 +22,34 @@ test_path = "modules/tests/"
 
 class TestImportWIP:
     def test_list_files(self):
-        filelist = list_files(test_path + "test_listfiles/")
+        filelist = list_files(Path(test_path + "test_listfiles/"))
         assert len(filelist) == 4
-        assert WindowsPath(test_path + "test_listfiles/not_excel.txt") not in filelist
-        assert WindowsPath(test_path + "test_listfiles/test1.xls") in filelist
-        assert WindowsPath(test_path + "test_listfiles/test2.xlsx") in filelist
-        assert WindowsPath(test_path + "test_listfiles/WIP_file.xlsx") in filelist
-        assert WindowsPath(test_path + "test_listfiles/not_WIP_file.xlsx") in filelist
+        assert Path(test_path + "test_listfiles/not_excel.txt") not in filelist
+        assert Path(test_path + "test_listfiles/test1.xls") in filelist
+        assert Path(test_path + "test_listfiles/test2.xlsx") in filelist
+        assert Path(test_path + "test_listfiles/WIP_file.xlsx") in filelist
+        assert Path(test_path + "test_listfiles/not_WIP_file.xlsx") in filelist
         # check temp files beginning with ~ are not included
-        assert WindowsPath(test_path + "test_listfiles/~WIP_file.xlsx") not in filelist
+        assert Path(test_path + "test_listfiles/~WIP_file.xlsx") not in filelist
 
     def test_check_wipfile(self):
         # test that only wip files are returned
         wipfile = [
-            WindowsPath(test_path + "test_listfiles/WIP_file.xlsx"),
-            WindowsPath(test_path + "test_listfiles/test1.xls"),
+            Path(test_path + "test_listfiles/WIP_file.xlsx"),
+            Path(test_path + "test_listfiles/test1.xls"),
         ]
         assert check_wipfile(wipfile) == [
-            WindowsPath(test_path + "test_listfiles/WIP_file.xlsx")
+            Path(test_path + "test_listfiles/WIP_file.xlsx")
         ]
         # test using a list that contains a non excel file
-        wipfile = [WindowsPath(test_path + "test_listfiles/not_excel.txt")]
+        wipfile = [Path(test_path + "test_listfiles/not_excel.txt")]
         assert check_wipfile(wipfile) == []
         # test that a non wip file is rejected
-        wipfile = [WindowsPath(test_path + "test_listfiles/not_WIP_file.xlsx")]
+        wipfile = [Path(test_path + "test_listfiles/not_WIP_file.xlsx")]
         assert check_wipfile(wipfile) == []
 
     def test_import_data(self):
-        wipfile = WindowsPath(test_path + "test_listfiles/WIP_file.xlsx")
+        wipfile = Path(test_path + "test_listfiles/WIP_file.xlsx")
         data = import_data(wipfile)
         assert data == {
             "projectName": "test_project",
@@ -85,7 +85,7 @@ class TestImportWIP:
         assert type(data["wipDate"]) is str
 
     def test_export_data_sql(self):
-        db_name = WindowsPath(test_path + "test_database/testdata.sqlite")
+        db_name = Path(test_path + "test_database/testdata.sqlite")
         data = {
             "projectName": "test_project",
             "projectNumber": "test_project_number",
@@ -168,13 +168,13 @@ class TestImportWIP:
 class TestMultiGraph:
     def test_create_database(self):
         # import the data & create the database
-        db_name = WindowsPath(test_path + "/test_database/testdata.sqlite")
-        import_wip_data(db_name, WindowsPath(test_path + "/test_listfiles"))
+        db_name = Path(test_path + "/test_database/testdata.sqlite")
+        import_wip_data(db_name, Path(test_path + "/test_listfiles"))
         assert os.path.isfile(db_name) is True
 
     def test_sqldata(self):
         # check the data is correct
-        db_name = WindowsPath(test_path + "test_database/testdata.sqlite")
+        db_name = Path(test_path + "test_database/testdata.sqlite")
         conn = sqlite3.connect(db_name)
         cur = conn.cursor()
         cur.execute(
@@ -220,15 +220,15 @@ class TestMultiGraph:
         ]
 
     def test_most_recent_wip(self):
-        db_name = WindowsPath(test_path + "test_database/testdata.sqlite")
+        db_name = Path(test_path + "test_database/testdata.sqlite")
         assert most_recent_wip(db_name) == "1970-01-01"
 
     def test_recent_project_list(self):
-        db_name = WindowsPath(test_path + "test_database/testdata.sqlite")
+        db_name = Path(test_path + "test_database/testdata.sqlite")
         assert recent_project_list("1970-02-01", db_name) == ["test_project_number"]
 
     def test_import_data_sql(self):
-        db_name = WindowsPath(test_path + "test_database/testdata.sqlite")
+        db_name = Path(test_path + "test_database/testdata.sqlite")
         months = 12
         search_data = ("test_project_number", months)
         request = "wipdate, projectNumber, projectname.name, \

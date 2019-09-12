@@ -3,7 +3,7 @@
 # import libraries
 import sqlite3
 import re
-from pathlib import Path
+from pathlib import Path, WindowsPath
 
 import warnings
 from openpyxl import load_workbook
@@ -21,6 +21,8 @@ warnings.filterwarnings("ignore")
 # import_wip_data(database_name, importdirectory)
 def import_wip_data(database_name, directory_name):
     print("importing from", directory_name, "to", database_name)
+    directory_name = Path(directory_name)
+    database_name = Path(database_name)
 
     # first extract the files from the _directory
     file_list = list_files(directory_name)
@@ -37,6 +39,7 @@ def import_wip_data(database_name, directory_name):
 
 # search through _directory to only return excel files
 def list_files(directory):
+    assert type(directory) is WindowsPath
     print("searching for files.....")
     p = Path(directory)
     file_list = list(p.rglob("[!~]*.xls*"))
@@ -81,6 +84,7 @@ def check_wipfile(filelist):
 
 # function to import wip data from excel file
 def import_data(wip_filename):
+    assert wip_filename.exists()
 
     # set variables for location of various fields
     # e.g. forecast sale, forecast cost, contribution, cost to date etc
@@ -328,6 +332,7 @@ def import_data(wip_filename):
 
 # function to import data into an SQL database
 def export_data_sql(data_list, database):
+    assert type(database) is WindowsPath
     # print data_list
     project_name = data_list["projectName"]
     # wip_date = data_list["wipDate"]
