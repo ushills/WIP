@@ -332,7 +332,7 @@ def export_data_sql(data_list, database):
     # print data_list
     project_name = data_list["projectName"]
     # wip_date = data_list["wipDate"]
-    conn = sqlite3.connect(os.path.normpath(database))
+    conn = sqlite3.connect(database)
     cur = conn.cursor()
 
     # delete the database table if it exists...for testing only
