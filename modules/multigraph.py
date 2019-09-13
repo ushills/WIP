@@ -364,7 +364,6 @@ def plot_forecast_graph(graph_data, output_directory):
     # plot the graph and save
     # plt.show()
     save_path = Path(output_directory, project_number[0] + " forecast totals graph.png")
-    print(save_path)
     plt.savefig(Path(save_path), bbox_inches="tight",)
     plt.close("all")
 
@@ -574,7 +573,6 @@ def plot_variation_graph(graph_data, output_directory):
     # plot the graph and save
     # plt.show()
     save_path = Path(output_directory, project_number[0] + " variations graph.png")
-    print(save_path)
     plt.savefig(Path(save_path), bbox_inches="tight",)
     plt.close("all")
 
