@@ -229,10 +229,7 @@ def plot_forecast_graph(graph_data, output_directory):
     # being plotted on it.
     # Common sizes: (10, 7.5) and (12, 9)
     plt.figure(figsize=(12, 9))
-    # fig = plt.figure()
-
-    # change to classic matplotlib styles
-    # plt.style.use("classic")
+    fig = plt.figure()
 
     fig, (ax, ax3) = plt.subplots(nrows=2)
     ax2 = ax.twinx()
@@ -259,15 +256,6 @@ def plot_forecast_graph(graph_data, output_directory):
 
     # format the dates in the correct format to show
     dates = [datetime.datetime.strptime(d, "%Y-%m-%d").date() for d in dates]
-
-    # Ensure that the axis ticks only show up on the bottom and
-    # left of the plot.
-    # Ticks on the right and top of the plot are generally
-    # unnecessary chartjunk
-    ax.get_xaxis().tick_bottom()
-    ax.get_yaxis().tick_left()
-    ax2.get_xaxis().tick_bottom()
-    ax2.get_yaxis().tick_right()
 
     # plot the data
     forecast_sale_line = ax.plot(
@@ -325,16 +313,6 @@ def plot_forecast_graph(graph_data, output_directory):
     ax.xaxis.set_major_locator(months)
     ax.xaxis.set_major_formatter(month_format)
 
-    # create the axis
-    # ax3 = plt.subplot(212)
-
-    # Ensure that the axis ticks only show up on the bottom and
-    # left of the plot.
-    # Ticks on the right and top of the plot are generally
-    # unnecessary chartjunk.
-    ax3.get_xaxis().tick_bottom()
-    ax3.get_yaxis().tick_left()
-
     # plot the data
     current_cost_line = ax3.plot(
         dates, current_cost, lw=2.5, color=tableau20[11], label="Cost"
@@ -362,7 +340,7 @@ def plot_forecast_graph(graph_data, output_directory):
         lines + lines2 + lines3,
         labels + labels2 + labels3,
         loc="upper center",
-        fontsize=10,
+        fontsize=9,
         bbox_to_anchor=(0.5, -0.5),
         fancybox=True,
         shadow=True,
