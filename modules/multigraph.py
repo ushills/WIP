@@ -3,6 +3,7 @@
 
 # import libraries
 import datetime
+
 # import os
 from pathlib import Path, WindowsPath
 import sqlite3
@@ -224,7 +225,7 @@ def plot_forecast_graph(graph_data, output_directory):
     # fig = plt.figure()
 
     # change to classic matplotlib styles
-    plt.style.use("classic")
+    # plt.style.use("classic")
 
     fig, (ax, ax3) = plt.subplots(nrows=2)
     ax2 = ax.twinx()
@@ -355,7 +356,7 @@ def plot_forecast_graph(graph_data, output_directory):
         labels + labels2 + labels3,
         loc="upper center",
         fontsize=10,
-        bbox_to_anchor=(0.5, -0.35),
+        bbox_to_anchor=(0.5, -0.5),
         fancybox=True,
         shadow=True,
         ncol=5,
@@ -364,7 +365,7 @@ def plot_forecast_graph(graph_data, output_directory):
     # plot the graph and save
     # plt.show()
     save_path = Path(output_directory, project_number[0] + " forecast totals graph.png")
-    plt.savefig(Path(save_path), bbox_inches="tight",)
+    plt.savefig(Path(save_path), bbox_inches="tight")
     plt.close("all")
 
 
@@ -372,6 +373,12 @@ def plot_forecast_graph(graph_data, output_directory):
 def plot_variation_graph(graph_data, output_directory):
 
     # Set the common variables
+    # set the font to Trebuchet MS
+    plt.rcParams['font.sans-serif'] = "Trebuchet MS"
+    plt.rcParams['font.family'] = "sans-serif"
+    # outline bar elements with a black border
+    plt.rcParams["patch.force_edgecolor"] = True
+    plt.rcParams["patch.facecolor"] = "b"
 
     # These are the "Tableau 20" colors as RGB.
     tableau20 = [
@@ -412,7 +419,7 @@ def plot_variation_graph(graph_data, output_directory):
     fig, (ax, ax2) = plt.subplots(nrows=2)
 
     # change to classic matplotlib styles
-    plt.style.use("classic")
+    # plt.style.use("classic")
 
     # Create the forcast totals graph
     # create the lists
@@ -450,7 +457,7 @@ def plot_variation_graph(graph_data, output_directory):
     # convert the dates to MMM-YYY
     xdate = []
     for d in dates:
-        d = d.strftime("%b-%Y")
+        d = d.strftime("%b-%y")
         xdate.append(d)
     dates = xdate
 
@@ -496,7 +503,7 @@ def plot_variation_graph(graph_data, output_directory):
     )
 
     # set the y axis label
-    ylabel = "No of Variations"
+    ylabel = "No of Variations\n"
     ax.set_ylabel(ylabel, fontsize=14, rotation="vertical")
 
     # set the title of the graph
@@ -573,7 +580,7 @@ def plot_variation_graph(graph_data, output_directory):
     # plot the graph and save
     # plt.show()
     save_path = Path(output_directory, project_number[0] + " variations graph.png")
-    plt.savefig(Path(save_path), bbox_inches="tight",)
+    plt.savefig(Path(save_path), bbox_inches="tight")
     plt.close("all")
 
 
