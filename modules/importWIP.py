@@ -2,8 +2,8 @@
 
 # import libraries
 import sqlite3
-import os
 import re
+from pathlib import Path, WindowsPath
 
 import warnings
 from openpyxl import load_workbook
@@ -21,9 +21,11 @@ warnings.filterwarnings("ignore")
 # import_wip_data(database_name, importdirectory)
 def import_wip_data(database_name, directory_name):
     print("importing from", directory_name, "to", database_name)
+    directory_name = Path(directory_name)
+    database_name = Path(database_name)
 
     # first extract the files from the _directory
-    file_list = list_files(os.path.normpath(directory_name))
+    file_list = list_files(directory_name)
 
     # check the files are wip files
     wip_files = check_wipfile(file_list)
@@ -37,19 +39,10 @@ def import_wip_data(database_name, directory_name):
 
 # search through _directory to only return excel files
 def list_files(directory):
+    assert type(directory) is WindowsPath
     print("searching for files.....")
-    file_list = []
-    for root, directories, filenames in os.walk(os.path.normpath(directory)):
-        for filename in filenames:
-            raw_filename = str(os.path.join(root, filename))
-            # skip temp files beginning with ~
-            if re.search(r"(~.*).*", raw_filename):
-                continue
-            # print raw_filename
-            # check if the file is excel, i.e. ends .xlsx
-            if re.search(r"(.*).xls?", raw_filename):
-                # print 'Appending', raw_filename
-                file_list.append(raw_filename)
+    p = Path(directory)
+    file_list = list(p.rglob("[!~]*.xls*"))
     print("found", len(file_list), "files")
     return file_list
 
@@ -91,6 +84,7 @@ def check_wipfile(filelist):
 
 # function to import wip data from excel file
 def import_data(wip_filename):
+    assert wip_filename.exists()
 
     # set variables for location of various fields
     # e.g. forecast sale, forecast cost, contribution, cost to date etc
@@ -338,10 +332,11 @@ def import_data(wip_filename):
 
 # function to import data into an SQL database
 def export_data_sql(data_list, database):
+    assert type(database) is WindowsPath
     # print data_list
     project_name = data_list["projectName"]
     # wip_date = data_list["wipDate"]
-    conn = sqlite3.connect(os.path.normpath(database))
+    conn = sqlite3.connect(database)
     cur = conn.cursor()
 
     # delete the database table if it exists...for testing only

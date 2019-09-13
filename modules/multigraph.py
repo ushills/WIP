@@ -3,7 +3,8 @@
 
 # import libraries
 import datetime
-import os
+# import os
+from pathlib import Path, WindowsPath
 import sqlite3
 import matplotlib.pyplot as plt
 from matplotlib.dates import MonthLocator, DateFormatter
@@ -15,6 +16,8 @@ init()
 
 # main routine
 def print_graphs(database_name, output_directory):
+    database_name = Path(database_name)
+    output_directory = Path(output_directory)
     plot_graphs(database_name, output_directory)
 
 
@@ -74,10 +77,11 @@ def plot_graphs(database_name, output_directory):
 
 # function to extract date of most recent wip in database
 def most_recent_wip(database):
+    assert type(database) is WindowsPath
 
     # connect to the datebase
     try:
-        conn = sqlite3.connect(os.path.normpath(database))
+        conn = sqlite3.connect(database)
     except NameError:
         print(Fore.RED)
         print("Database file", database, "does not exist")
@@ -113,11 +117,12 @@ def most_recent_wip(database):
 
 # function to extract list of most recent wips
 def recent_project_list(search_date, database):
+    assert type(database) is WindowsPath
     projects = []
 
     # connect to the database
     try:
-        conn = sqlite3.connect(os.path.normpath(database))
+        conn = sqlite3.connect(database)
     except NameError:
         print(Fore.RED)
         print("-" * 40)
@@ -148,9 +153,10 @@ def recent_project_list(search_date, database):
 
 # function to read data from SQL database based on job number & months
 def import_data_sql(search_data, request, database):
+    assert type(database) is WindowsPath
     project_number = search_data[0]
     months = search_data[1]
-    conn = sqlite3.connect(os.path.normpath(database))
+    conn = sqlite3.connect(database)
     cur = conn.cursor()
 
     # extract seachdata
@@ -357,12 +363,8 @@ def plot_forecast_graph(graph_data, output_directory):
 
     # plot the graph and save
     # plt.show()
-    plt.savefig(
-        os.path.normpath(
-            output_directory + project_number[0] + " forecast totals graph.png"
-        ),
-        bbox_inches="tight",
-    )
+    save_path = Path(output_directory, project_number[0] + " forecast totals graph.png")
+    plt.savefig(Path(save_path), bbox_inches="tight",)
     plt.close("all")
 
 
@@ -570,12 +572,8 @@ def plot_variation_graph(graph_data, output_directory):
 
     # plot the graph and save
     # plt.show()
-    plt.savefig(
-        os.path.normpath(
-            output_directory + project_number[0] + " variations graph.png"
-        ),
-        bbox_inches="tight",
-    )
+    save_path = Path(output_directory, project_number[0] + " variations graph.png")
+    plt.savefig(Path(save_path), bbox_inches="tight",)
     plt.close("all")
 
 
