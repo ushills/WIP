@@ -187,12 +187,12 @@ def plot_forecast_graph(graph_data, output_directory):
 
     # Set the common variables
     # set the font to Trebuchet MS
-    plt.rcParams['font.sans-serif'] = "Trebuchet MS"
-    plt.rcParams['font.family'] = "sans-serif"
+    plt.rcParams["font.sans-serif"] = "Trebuchet MS"
+    plt.rcParams["font.family"] = "sans-serif"
     # remove padding from plot
-    plt.rcParams['axes.autolimit_mode'] = 'round_numbers'
-    plt.rcParams['axes.xmargin'] = 0
-    plt.rcParams['axes.ymargin'] = 0
+    plt.rcParams["axes.autolimit_mode"] = "round_numbers"
+    plt.rcParams["axes.xmargin"] = 0
+    plt.rcParams["axes.ymargin"] = 0
 
     # These are the "Tableau 20" colors as RGB.
     tableau20 = [
@@ -381,8 +381,8 @@ def plot_variation_graph(graph_data, output_directory):
 
     # Set the common variables
     # set the font to Trebuchet MS
-    plt.rcParams['font.sans-serif'] = "Trebuchet MS"
-    plt.rcParams['font.family'] = "sans-serif"
+    plt.rcParams["font.sans-serif"] = "Trebuchet MS"
+    plt.rcParams["font.family"] = "sans-serif"
     # outline bar elements with a black border
     plt.rcParams["patch.force_edgecolor"] = True
     plt.rcParams["patch.facecolor"] = "b"
@@ -421,12 +421,8 @@ def plot_variation_graph(graph_data, output_directory):
     # This plot is a rare exception because of the number of lines
     # being plotted on it.
     # Common sizes: (10, 7.5) and (12, 9)
-
     plt.figure(figsize=(12, 9))
     fig, (ax, ax2) = plt.subplots(nrows=2)
-
-    # change to classic matplotlib styles
-    # plt.style.use("classic")
 
     # Create the forcast totals graph
     # create the lists
@@ -468,13 +464,6 @@ def plot_variation_graph(graph_data, output_directory):
         xdate.append(d)
     dates = xdate
 
-    # Ensure that the axis ticks only show up on the bottom and
-    # left of the plot.
-    # Ticks on the right and top of the plot are generally
-    # unnecessary chartjunk.
-    ax.get_xaxis().tick_bottom()
-    ax.get_yaxis().tick_left()
-
     # plot the data
     # as this is a stacked graph first we need to zip the arrays for the
     # bottom statement
@@ -488,6 +477,7 @@ def plot_variation_graph(graph_data, output_directory):
         agreed_variation_no,
         width=width_of_date,
         color=tableau20[5],
+        align="edge",
         label="Agreed",
     )
 
@@ -497,6 +487,7 @@ def plot_variation_graph(graph_data, output_directory):
         bottom=agreed_variation_no,
         width=width_of_date,
         color=tableau20[15],
+        align="edge",
         label="Submitted",
     )
 
@@ -506,6 +497,7 @@ def plot_variation_graph(graph_data, output_directory):
         bottom=cumulative_number_histogram,
         width=width_of_date,
         color=tableau20[11],
+        align="edge",
         label="Budget",
     )
 
@@ -516,13 +508,6 @@ def plot_variation_graph(graph_data, output_directory):
     # set the title of the graph
     title = project_name[0] + " (" + project_number[0] + ")\n"
     ax.set_title(title, fontsize=16, ha="center")
-
-    # Ensure that the axis ticks only show up on the bottom and
-    # left of the plot.
-    # Ticks on the right and top of the plot are generally
-    # unnecessary chartjunk.
-    ax2.get_xaxis().tick_bottom()
-    ax2.get_yaxis().tick_left()
 
     # plot the data
     # first set the width of the bins for side by side bar chart
@@ -536,6 +521,7 @@ def plot_variation_graph(graph_data, output_directory):
         agreed_variation_value,
         width=width_of_date,
         color=tableau20[5],
+        align="edge",
         label="Agreed",
     )
 
@@ -544,6 +530,7 @@ def plot_variation_graph(graph_data, output_directory):
         submitted_variation_value,
         width=width_of_date,
         color=tableau20[15],
+        align="edge",
         label="Submitted",
     )
 
@@ -552,6 +539,7 @@ def plot_variation_graph(graph_data, output_directory):
         budget_variation_value,
         width=width_of_date,
         color=tableau20[11],
+        align="edge",
         label="Budget",
     )
 
@@ -560,9 +548,9 @@ def plot_variation_graph(graph_data, output_directory):
     ax2.set_ylabel(ylabel, fontsize=14, rotation="vertical")
 
     # set the x axis label
-    # ax2.set_xticks(cumulative_bin)
-    # ax2.set_xticklabels(dates)
-    # plt.gcf().autofmt_xdate()
+    ax2.set_xticks(cumulative_bin)
+    ax2.set_xticklabels(dates)
+    plt.gcf().autofmt_xdate()
 
     # add the legend
     # shrink the axis height by 10% at the bottom
