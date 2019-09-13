@@ -5,14 +5,14 @@ verify_ssl = true
 
 [dev-packages]
 pylint = "*"
-black = "*"
 flake8 = "*"
 
 [packages]
 openpyxl = "*"
 pytest = "*"
-matplotlib = "==2.*"
+matplotlib = "==3.*"
 colorama = "*"
+black = "*"
 
 [requires]
 python_version = "3.7"
