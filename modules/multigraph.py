@@ -186,6 +186,13 @@ def import_data_sql(search_data, request, database):
 def plot_forecast_graph(graph_data, output_directory):
 
     # Set the common variables
+    # set the font to Trebuchet MS
+    plt.rcParams['font.sans-serif'] = "Trebuchet MS"
+    plt.rcParams['font.family'] = "sans-serif"
+    # remove padding from plot
+    plt.rcParams['axes.autolimit_mode'] = 'round_numbers'
+    plt.rcParams['axes.xmargin'] = 0
+    plt.rcParams['axes.ymargin'] = 0
 
     # These are the "Tableau 20" colors as RGB.
     tableau20 = [
@@ -311,8 +318,8 @@ def plot_forecast_graph(graph_data, output_directory):
 
     # format the x axis date format
     months = MonthLocator()
-    month_format = DateFormatter("%b-%Y")
-    ax3.fmt_xdata = DateFormatter("%b-%Y")
+    month_format = DateFormatter("%b-%y")
+    ax3.fmt_xdata = DateFormatter("%b-%y")
     ax3.xaxis.set_major_locator(months)
     ax3.xaxis.set_major_formatter(month_format)
     ax.xaxis.set_major_locator(months)
@@ -553,9 +560,9 @@ def plot_variation_graph(graph_data, output_directory):
     ax2.set_ylabel(ylabel, fontsize=14, rotation="vertical")
 
     # set the x axis label
-    ax2.set_xticks(cumulative_bin)
-    ax2.set_xticklabels(dates)
-    plt.gcf().autofmt_xdate()
+    # ax2.set_xticks(cumulative_bin)
+    # ax2.set_xticklabels(dates)
+    # plt.gcf().autofmt_xdate()
 
     # add the legend
     # shrink the axis height by 10% at the bottom
