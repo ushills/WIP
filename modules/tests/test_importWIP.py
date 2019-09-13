@@ -267,13 +267,8 @@ class TestMultiGraph:
 
     def test_print_graphs(self):
         print_graphs(
-            (test_path + "test_database/test.sqlite"),
-            (test_path + "/test_graphs/test_"),
+            (test_path + "test_database/test.sqlite"), (test_path + "/test_graphs/")
         )
-        assert Path(
-            (test_path + "test_graphs/test_12345 variations graph.png")
-        ).exists()
-        assert Path(
-            (test_path + "test_graphs/test_12345 forecast totals graph.png")
-        ).exists()
+        assert Path(test_path, "test_graphs/12345 variations graph.png").exists()
+        assert Path(test_path, "test_graphs/12345 forecast totals graph.png").exists()
 

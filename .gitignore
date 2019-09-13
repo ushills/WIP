@@ -6,8 +6,10 @@
 /northwest
 /southwest
 /venv
-test_12345 forecast totals graph.png
-test_12345 variations graph.png
+*.ipynb
+pytest.ini
+modules/tests/test_graphs/12345 forecast totals graph.png
+modules/tests/test_graphs/12345 variations graph.png
 /.idea
 
 
@@ -54,5 +56,4 @@ Thumbs.db
 *.pyc
 .vscode/settings.json
 .pytest_cache
-*.ipynb
-pytest.ini
+
