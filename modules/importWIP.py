@@ -1,6 +1,8 @@
 # import WIP data from WIP file
 
 # import libraries
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, UniqueConstraint, ForeignKey
 import sqlite3
 import re
 from pathlib import Path, WindowsPath
@@ -330,7 +332,82 @@ def import_data(wip_filename):
     return wip_data
 
 
-# function to import data into an SQL database
+# # function to import data into an SQL database
+# def export_data_sql(data_list, database):
+#     assert type(database) is WindowsPath
+#     # print data_list
+#     project_name = data_list["projectName"]
+#     # wip_date = data_list["wipDate"]
+#     conn = sqlite3.connect(database)
+#     cur = conn.cursor()
+
+#     # delete the database table if it exists...for testing only
+#     # cur.execute('''DROP TABLE IF EXISTS wipdata''')
+
+#     # create job name table
+#     cur.execute(
+#         "CREATE TABLE IF NOT EXISTS projectname ("
+#         "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"
+#         "name TEXT UNIQUE)"
+#     )
+
+#     # create wipdata table if doesn't exist
+#     cur.execute(
+#         "CREATE TABLE IF NOT EXISTS wipdata ("
+#         "projectNumber TEXT, projectName INTEGER, wipDate TEXT,"
+#         "agreedVariationsNo INTEGER, budgetVariationsNo INTEGER,"
+#         "submittedVariationsNo INTEGER, variationsNoTotal INTEGER,"
+#         "orderValue INTEGER, agreedVariationsValue INTEGER,"
+#         "budgetVariationsValue INTEGER, submittedVariationsValue INTEGER,"
+#         "saleSubtotal INTEGER, reserveAgreed INTEGER, reserveBudget INTEGER,"
+#         "reserveSubmitted INTEGER, contracharges INTEGER,"
+#         "forecastSaleTotal INTEGER, currentCost INTEGER, costToComplete INTEGER,"
+#         "defectProvision INTEGER, forecastCostTotal INTEGER,"
+#         "contractContribution INTEGER, bettermentsRisks INTEGER,"
+#         "managersView INTEGER, forecastMarginTotal INTEGER,"
+#         "latestApplication INTEGER, totalCertified INTEGER,"
+#         "PRIMARY KEY (projectNumber, wipDate));"
+#     )
+
+#     # check if the project name exists in the table project name
+#     cur.execute(
+#         "INSERT OR IGNORE INTO projectname (name) " "VALUES ( ? )", (project_name,)
+#     )
+#     cur.execute("SELECT id FROM projectname WHERE name = ?", (project_name,))
+#     project_name_id = cur.fetchone()[0]
+#     data_list["projectName"] = project_name_id
+
+#     # run through the data and allocate to each field
+#     cur.executemany(
+#         "INSERT OR REPLACE INTO wipdata "
+#         "(projectNumber, projectName, wipDate, agreedVariationsNo,"
+#         "budgetVariationsNo, submittedVariationsNo, variationsNoTotal,"
+#         "orderValue, agreedVariationsValue, budgetVariationsValue,"
+#         "submittedVariationsValue, saleSubtotal, reserveAgreed,"
+#         "reserveBudget, reserveSubmitted, contracharges,"
+#         "forecastSaleTotal, currentCost, costToComplete,"
+#         "defectProvision, forecastCostTotal, contractContribution,"
+#         "bettermentsRisks, managersView, forecastMarginTotal,"
+#         "latestApplication, totalCertified)"
+#         "VALUES ("
+#         ":projectNumber, :projectName, :wipDate, :agreedVariationsNo,"
+#         ":budgetVariationsNo, :submittedVariationsNo, :variationsNoTotal,"
+#         ":orderValue, :agreedVariationsValue, :budgetVariationsValue,"
+#         ":submittedVariationsValue, :saleSubtotal, :reserveAgreed,"
+#         ":reserveBudget, :reserveSubmitted, :contracharges,"
+#         ":forecastSaleTotal, :currentCost, :costToComplete,"
+#         ":defectProvision, :forecastCostTotal, :contractContribution,"
+#         ":bettermentsRisks, :managersView, :forecastMarginTotal,"
+#         ":latestApplication, :totalCertified)",
+#         [data_list],
+#     )
+
+#     # Commit the changes to the database
+#     conn.commit()
+#     cur.close()
+#     conn.close()
+
+# function to import data into an SQL database using Sqlalchemy
 def export_data_sql(data_list, database):
     assert type(database) is WindowsPath
     # print data_list
@@ -343,29 +420,68 @@ def export_data_sql(data_list, database):
     # cur.execute('''DROP TABLE IF EXISTS wipdata''')
 
     # create job name table
-    cur.execute(
-        "CREATE TABLE IF NOT EXISTS projectname ("
-        "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"
-        "name TEXT UNIQUE)"
-    )
+    # cur.execute(
+    #     "CREATE TABLE IF NOT EXISTS projectname ("
+    #     "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"
+    #     "name TEXT UNIQUE)"
+    # )
+
+    Base = declarative_base()
+
+    class projectname(Base):
+        __tablename__ = "projectname"
+
+        id = Column(Integer, primary_key=True, autoincrement=True)
+        name = Column(String, unique=True)
 
     # create wipdata table if doesn't exist
-    cur.execute(
-        "CREATE TABLE IF NOT EXISTS wipdata ("
-        "projectNumber TEXT, projectName INTEGER, wipDate TEXT,"
-        "agreedVariationsNo INTEGER, budgetVariationsNo INTEGER,"
-        "submittedVariationsNo INTEGER, variationsNoTotal INTEGER,"
-        "orderValue INTEGER, agreedVariationsValue INTEGER,"
-        "budgetVariationsValue INTEGER, submittedVariationsValue INTEGER,"
-        "saleSubtotal INTEGER, reserveAgreed INTEGER, reserveBudget INTEGER,"
-        "reserveSubmitted INTEGER, contracharges INTEGER,"
-        "forecastSaleTotal INTEGER, currentCost INTEGER, costToComplete INTEGER,"
-        "defectProvision INTEGER, forecastCostTotal INTEGER,"
-        "contractContribution INTEGER, bettermentsRisks INTEGER,"
-        "managersView INTEGER, forecastMarginTotal INTEGER,"
-        "latestApplication INTEGER, totalCertified INTEGER,"
-        "PRIMARY KEY (projectNumber, wipDate));"
-    )
+    # cur.execute(
+    #     "CREATE TABLE IF NOT EXISTS wipdata ("
+    #     "projectNumber TEXT, projectName INTEGER, wipDate TEXT,"
+    #     "agreedVariationsNo INTEGER, budgetVariationsNo INTEGER,"
+    #     "submittedVariationsNo INTEGER, variationsNoTotal INTEGER,"
+    #     "orderValue INTEGER, agreedVariationsValue INTEGER,"
+    #     "budgetVariationsValue INTEGER, submittedVariationsValue INTEGER,"
+    #     "saleSubtotal INTEGER, reserveAgreed INTEGER, reserveBudget INTEGER,"
+    #     "reserveSubmitted INTEGER, contracharges INTEGER,"
+    #     "forecastSaleTotal INTEGER, currentCost INTEGER, costToComplete INTEGER,"
+    #     "defectProvision INTEGER, forecastCostTotal INTEGER,"
+    #     "contractContribution INTEGER, bettermentsRisks INTEGER,"
+    #     "managersView INTEGER, forecastMarginTotal INTEGER,"
+    #     "latestApplication INTEGER, totalCertified INTEGER,"
+    #     "PRIMARY KEY (projectNumber, wipDate));"
+    # )
+
+    class wipdata(Base):
+        __tablename__ = "wipdata"
+
+        projectNumber = Column(String, primary_key=True)
+        projectName = Column(Integer)
+        wipDate = Column(String, primary_key=True)
+        agreedVariationsNo = Column(Integer)
+        budgetVariationsNo = Column(Integer)
+        submittedVariationsNo = Column(Integer)
+        variationsNoTotal = Column(Integer)
+        orderValue = Column(Integer)
+        agreedVariationsValue = Column(Integer)
+        budgetVariationsValue = Column(Integer)
+        submittedVariationsValue = Column(Integer)
+        saleSubtotal = Column(Integer)
+        reserveAgreed = Column(Integer)
+        reserveBudget = Column(Integer)
+        reserveSubmitted = Column(Integer)
+        contracharges = Column(Integer)
+        forecastSaleTotal = Column(Integer)
+        currentCost = Column(Integer)
+        costToComplete = Column(Integer)
+        defectProvision = Column(Integer)
+        forecastCostTotal = Column(Integer)
+        contractContribution = Column(Integer)
+        bettermentsRisks = Column(Integer)
+        managersView = Column(Integer)
+        forecastMarginTotal = Column(Integer)
+        latestApplication = Column(Integer)
+        totalCertified = Column(Integer)
 
     # check if the project name exists in the table project name
     cur.execute(
